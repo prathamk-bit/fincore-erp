@@ -1,4 +1,4 @@
-/* FinCore ERP — Minimalist UI (Stripe/Linear Inspired) */
+/* FinCore ERP — Premium Financial SaaS UI v2 */
 
 // === 1. State ===
 const state = { token: localStorage.getItem('fincore_token'), user: JSON.parse(localStorage.getItem('fincore_user') || 'null'), currentPage: 'dashboard' };
@@ -37,12 +37,20 @@ const pageTitles = {
     'items': 'Inventory Items', 'categories': 'Categories', 'warehouses': 'Warehouses', 'stock-ledger': 'Stock Ledger',
     'inventory-adjustments': 'Adjustments', 'purchase-orders': 'Purchase Orders', 'suppliers': 'Suppliers', 'users': 'User Management'
 };
+const pageIcons = {
+    'dashboard': 'fa-chart-line', 'accounts': 'fa-building-columns', 'journal-entries': 'fa-book',
+    'ledger': 'fa-rectangle-list', 'trial-balance': 'fa-scale-balanced', 'income-statement': 'fa-arrow-trend-up',
+    'balance-sheet': 'fa-layer-group', 'cash-flow': 'fa-money-bill-transfer', 'transactions': 'fa-receipt',
+    'employees': 'fa-users', 'departments': 'fa-sitemap', 'designations': 'fa-id-badge', 'payroll': 'fa-indian-rupee-sign',
+    'items': 'fa-boxes-stacked', 'categories': 'fa-tags', 'warehouses': 'fa-warehouse', 'stock-ledger': 'fa-clipboard-list',
+    'inventory-adjustments': 'fa-arrows-rotate', 'purchase-orders': 'fa-file-invoice', 'suppliers': 'fa-truck-field', 'users': 'fa-user-gear'
+};
 
 function navigateTo(page) {
     state.currentPage = page;
     document.querySelectorAll('.nav-item').forEach(i => i.classList.toggle('active', i.dataset.page === page));
     const t = document.querySelector('.topbar-title');
-    if (t) t.innerHTML = `<h2>${pageTitles[page] || page}</h2><div class="breadcrumb">Home / ${pageTitles[page] || page}</div>`;
+    if (t) t.innerHTML = `<h2>${pageTitles[page] || page}</h2><div class="breadcrumb"><i class="fa-solid fa-house" style="font-size:10px;margin-right:4px"></i> Home / ${pageTitles[page] || page}</div>`;
     const renderer = pageRenderers[page];
     if (renderer) renderer();
 }
@@ -77,20 +85,20 @@ function showLoginPage() {
     <div class="login-container">
         <div class="login-card">
             <div class="login-brand">
-                <div class="brand-mark">◆</div>
+                <div class="brand-mark"><i class="fa-solid fa-gem"></i></div>
                 <h1>FinCore</h1>
                 <p>Finance-Centric ERP System</p>
             </div>
             <div class="login-box">
                 <div class="login-error" style="display:none;"></div>
                 <form id="login-form">
-                    <div class="form-group"><label>Username</label><input type="text" id="login-username" placeholder="Enter username" required></div>
-                    <div class="form-group"><label>Password</label><input type="password" id="login-password" placeholder="Enter password" required></div>
-                    <button type="submit" class="btn-login">Sign In</button>
+                    <div class="form-group"><label><i class="fa-solid fa-user" style="margin-right:4px;opacity:0.5"></i> Username</label><input type="text" id="login-username" placeholder="Enter username" required></div>
+                    <div class="form-group"><label><i class="fa-solid fa-lock" style="margin-right:4px;opacity:0.5"></i> Password</label><input type="password" id="login-password" placeholder="Enter password" required></div>
+                    <button type="submit" class="btn-login"><i class="fa-solid fa-arrow-right-to-bracket" style="margin-right:6px"></i> Sign In</button>
                 </form>
             </div>
             <div class="login-creds">
-                <h4>Demo Credentials</h4>
+                <h4><i class="fa-solid fa-circle-info" style="margin-right:4px"></i> Demo Credentials</h4>
                 <div class="cred-row"><span class="cred-role">Admin</span><span>admin / <code>admin123</code></span></div>
                 <div class="cred-row"><span class="cred-role">Accountant</span><span>accountant / <code>acc123</code></span></div>
                 <div class="cred-row"><span class="cred-role">HR Manager</span><span>hr_manager / <code>hr123</code></span></div>
@@ -108,15 +116,15 @@ function showApp() {
     <div class="app-layout">
         <div class="sidebar-overlay" id="sidebar-overlay"></div>
         <aside class="sidebar" id="sidebar">
-            <div class="sidebar-brand"><div class="brand-icon">◆</div><div><div class="brand-name">FinCore</div><div class="brand-sub">ERP System</div></div></div>
+            <div class="sidebar-brand"><div class="brand-icon"><i class="fa-solid fa-gem" style="font-size:14px"></i></div><div><div class="brand-name">FinCore</div><div class="brand-sub">ERP System</div></div></div>
             <div class="sidebar-scroll"><nav id="sidebar-nav">${buildSidebarNav()}</nav></div>
             <div class="sidebar-user"><div class="user-avatar">${initials}</div><div><div class="user-name">${esc(user?.username || 'User')}</div><div class="user-role">${esc(user?.role || '')}</div></div></div>
-            <button class="btn-logout" id="btn-logout">↩ Sign Out</button>
+            <button class="btn-logout" id="btn-logout"><i class="fa-solid fa-arrow-right-from-bracket"></i> Sign Out</button>
         </aside>
         <div class="main-area">
             <header class="topbar">
-                <button class="topbar-toggle" id="sidebar-toggle">☰</button>
-                <div class="topbar-title"><h2>Dashboard</h2><div class="breadcrumb">Home / Dashboard</div></div>
+                <button class="topbar-toggle" id="sidebar-toggle"><i class="fa-solid fa-bars"></i></button>
+                <div class="topbar-title"><h2>Dashboard</h2><div class="breadcrumb"><i class="fa-solid fa-house" style="font-size:10px;margin-right:4px"></i> Home / Dashboard</div></div>
                 <div class="topbar-search"><input type="text" placeholder="Search…"></div>
                 <div class="topbar-actions"></div>
             </header>
@@ -137,36 +145,36 @@ function showApp() {
 function buildSidebarNav() {
     const role = state.user?.role || '';
     const s = [];
-    s.push({ t: 'Overview', items: [{ p: 'dashboard', i: '⌂', l: 'Dashboard' }] });
+    s.push({ t: 'Overview', items: [{ p: 'dashboard', i: 'fa-chart-line', l: 'Dashboard' }] });
     if (['admin', 'accountant'].includes(role)) {
         s.push({ t: 'Accounting', items: [
-            { p: 'accounts', i: '◈', l: 'Chart of Accounts' }, { p: 'journal-entries', i: '☰', l: 'Journal Entries' },
-            { p: 'ledger', i: '▤', l: 'General Ledger' }, { p: 'trial-balance', i: '⚖', l: 'Trial Balance' }
+            { p: 'accounts', i: 'fa-building-columns', l: 'Chart of Accounts' }, { p: 'journal-entries', i: 'fa-book', l: 'Journal Entries' },
+            { p: 'ledger', i: 'fa-rectangle-list', l: 'General Ledger' }, { p: 'trial-balance', i: 'fa-scale-balanced', l: 'Trial Balance' }
         ]});
         s.push({ t: 'Reports', items: [
-            { p: 'income-statement', i: '↗', l: 'Income Statement' }, { p: 'balance-sheet', i: '☷', l: 'Balance Sheet' }, { p: 'cash-flow', i: '⇄', l: 'Cash Flow' }
+            { p: 'income-statement', i: 'fa-arrow-trend-up', l: 'Income Statement' }, { p: 'balance-sheet', i: 'fa-layer-group', l: 'Balance Sheet' }, { p: 'cash-flow', i: 'fa-money-bill-transfer', l: 'Cash Flow' }
         ]});
-        s.push({ t: 'Finance', items: [{ p: 'transactions', i: '⟐', l: 'Transactions' }] });
+        s.push({ t: 'Finance', items: [{ p: 'transactions', i: 'fa-receipt', l: 'Transactions' }] });
     }
     if (['admin', 'hr_manager'].includes(role)) {
         s.push({ t: 'Human Resources', items: [
-            { p: 'employees', i: '⚇', l: 'Employees' }, { p: 'departments', i: '⊞', l: 'Departments' },
-            { p: 'designations', i: '◇', l: 'Designations' }, { p: 'payroll', i: '₹', l: 'Payroll' }
+            { p: 'employees', i: 'fa-users', l: 'Employees' }, { p: 'departments', i: 'fa-sitemap', l: 'Departments' },
+            { p: 'designations', i: 'fa-id-badge', l: 'Designations' }, { p: 'payroll', i: 'fa-indian-rupee-sign', l: 'Payroll' }
         ]});
     }
     if (['admin', 'inventory_manager'].includes(role)) {
         s.push({ t: 'Inventory', items: [
-            { p: 'items', i: '▦', l: 'Items' }, { p: 'categories', i: '⊟', l: 'Categories' },
-            { p: 'warehouses', i: '⌂', l: 'Warehouses' }, { p: 'stock-ledger', i: '▤', l: 'Stock Ledger' },
-            { p: 'inventory-adjustments', i: '⟳', l: 'Adjustments' }
+            { p: 'items', i: 'fa-boxes-stacked', l: 'Items' }, { p: 'categories', i: 'fa-tags', l: 'Categories' },
+            { p: 'warehouses', i: 'fa-warehouse', l: 'Warehouses' }, { p: 'stock-ledger', i: 'fa-clipboard-list', l: 'Stock Ledger' },
+            { p: 'inventory-adjustments', i: 'fa-arrows-rotate', l: 'Adjustments' }
         ]});
         s.push({ t: 'Procurement', items: [
-            { p: 'purchase-orders', i: '✦', l: 'Purchase Orders' }, { p: 'suppliers', i: '⊕', l: 'Suppliers' }
+            { p: 'purchase-orders', i: 'fa-file-invoice', l: 'Purchase Orders' }, { p: 'suppliers', i: 'fa-truck-field', l: 'Suppliers' }
         ]});
     }
-    if (role === 'admin') s.push({ t: 'Admin', items: [{ p: 'users', i: '⚙', l: 'Users' }] });
+    if (role === 'admin') s.push({ t: 'Admin', items: [{ p: 'users', i: 'fa-user-gear', l: 'Users' }] });
 
-    return s.map(sec => `<div class="nav-group"><div class="nav-group-label">${sec.t}</div>${sec.items.map(it => `<div class="nav-item" data-page="${it.p}"><span class="nav-icon">${it.i}</span><span class="nav-label">${it.l}</span></div>`).join('')}</div>`).join('');
+    return s.map(sec => `<div class="nav-group"><div class="nav-group-label">${sec.t}</div>${sec.items.map(it => `<div class="nav-item" data-page="${it.p}"><span class="nav-icon"><i class="fa-solid ${it.i}"></i></span><span class="nav-label">${it.l}</span></div>`).join('')}</div>`).join('');
 }
 
 function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('sidebar-overlay').classList.toggle('active'); }
@@ -175,14 +183,15 @@ function closeSidebar() { document.getElementById('sidebar').classList.remove('o
 // === 7. Helpers ===
 function showAlert(message, type = 'info') {
     const c = document.getElementById('alert-container'); if (!c) return;
+    const icons = { success: 'fa-circle-check', error: 'fa-circle-xmark', warning: 'fa-triangle-exclamation', info: 'fa-circle-info' };
     const a = document.createElement('div');
-    a.className = `alert alert-${type}`; a.innerHTML = `<span>${message}</span><button class="alert-close" onclick="this.parentElement.remove()">×</button>`;
-    c.appendChild(a); setTimeout(() => { if (a.parentElement) a.remove(); }, 4000);
+    a.className = `alert alert-${type}`; a.innerHTML = `<i class="fa-solid ${icons[type] || icons.info}" style="font-size:16px"></i><span>${message}</span><button class="alert-close" onclick="this.parentElement.remove()">×</button>`;
+    c.appendChild(a); setTimeout(() => { if (a.parentElement) { a.style.opacity = '0'; a.style.transform = 'translateX(30px)'; setTimeout(() => a.remove(), 200); } }, 4000);
 }
 
 function showModal(title, content, footer = '') {
     const m = document.getElementById('modal-container');
-    m.innerHTML = `<div class="modal-header"><h3>${title}</h3><button class="modal-close" onclick="closeModal()">×</button></div><div class="modal-body">${content}</div>${footer ? `<div class="modal-footer">${footer}</div>` : ''}`;
+    m.innerHTML = `<div class="modal-header"><h3>${title}</h3><button class="modal-close" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button></div><div class="modal-body">${content}</div>${footer ? `<div class="modal-footer">${footer}</div>` : ''}`;
     document.getElementById('modal-overlay').classList.add('active');
 }
 function showModalLg(title, content, footer = '') { document.getElementById('modal-container').classList.add('modal-lg'); showModal(title, content, footer); }
@@ -212,33 +221,53 @@ async function renderDashboard() {
         const main = document.getElementById('main-content');
         main.innerHTML = `<div class="fade-up">
         ${isFinance ? `<div class="stats-grid stagger">
-            <div class="stat-card fade-up"><div class="stat-label">Net Position ${tip('Total Assets minus Total Liabilities')}</div><div class="stat-value">${fmtCur(stats.net_position)}</div><div class="stat-sub">${parseFloat(stats.net_position) >= 0 ? '<span class="stat-trend up">↑ Positive</span>' : '<span class="stat-trend down">↓ Negative</span>'}</div></div>
-            <div class="stat-card fade-up"><div class="stat-label">Net Income ${tip('Revenue minus Expenses. Shows profitability')}</div><div class="stat-value">${fmtCur(stats.net_income)}</div><div class="stat-sub">${parseFloat(stats.net_income) >= 0 ? '<span class="stat-trend up">↑ Profit</span>' : '<span class="stat-trend down">↓ Loss</span>'}</div></div>
-            <div class="stat-card fade-up"><div class="stat-label">Total Revenue ${tip('Sum of all income from sales and services')}</div><div class="stat-value">${fmtCur(stats.total_revenue)}</div><div class="stat-sub">All income streams</div></div>
-            <div class="stat-card fade-up"><div class="stat-label">Total Expenses ${tip('Sum of all costs including salaries, purchases, operations')}</div><div class="stat-value">${fmtCur(stats.total_expenses)}</div><div class="stat-sub">All cost centers</div></div>
+            <div class="stat-card fade-up">
+                <div class="stat-icon blue"><i class="fa-solid fa-vault"></i></div>
+                <div class="stat-label">Net Position ${tip('Total Assets minus Total Liabilities')}</div>
+                <div class="stat-value">${fmtCur(stats.net_position)}</div>
+                <div class="stat-sub">${parseFloat(stats.net_position) >= 0 ? '<span class="stat-trend up"><i class="fa-solid fa-arrow-up" style="font-size:10px"></i> Positive</span>' : '<span class="stat-trend down"><i class="fa-solid fa-arrow-down" style="font-size:10px"></i> Negative</span>'}</div>
+            </div>
+            <div class="stat-card fade-up">
+                <div class="stat-icon green"><i class="fa-solid fa-chart-pie"></i></div>
+                <div class="stat-label">Net Income ${tip('Revenue minus Expenses. Shows profitability')}</div>
+                <div class="stat-value">${fmtCur(stats.net_income)}</div>
+                <div class="stat-sub">${parseFloat(stats.net_income) >= 0 ? '<span class="stat-trend up"><i class="fa-solid fa-arrow-up" style="font-size:10px"></i> Profit</span>' : '<span class="stat-trend down"><i class="fa-solid fa-arrow-down" style="font-size:10px"></i> Loss</span>'}</div>
+            </div>
+            <div class="stat-card fade-up">
+                <div class="stat-icon amber"><i class="fa-solid fa-coins"></i></div>
+                <div class="stat-label">Total Revenue ${tip('Sum of all income from sales and services')}</div>
+                <div class="stat-value">${fmtCur(stats.total_revenue)}</div>
+                <div class="stat-sub"><i class="fa-solid fa-arrow-right" style="font-size:10px;color:var(--text-muted)"></i> All income streams</div>
+            </div>
+            <div class="stat-card fade-up">
+                <div class="stat-icon red"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+                <div class="stat-label">Total Expenses ${tip('Sum of all costs including salaries, purchases, operations')}</div>
+                <div class="stat-value">${fmtCur(stats.total_expenses)}</div>
+                <div class="stat-sub"><i class="fa-solid fa-arrow-right" style="font-size:10px;color:var(--text-muted)"></i> All cost centers</div>
+            </div>
         </div>` : ''}
         <div class="stats-row stagger">
-            <div class="stat-mini fade-up"><div class="stat-icon-box blue">⚇</div><div><div class="stat-value">${stats.total_employees || 0}</div><div class="stat-label">Employees</div></div></div>
-            <div class="stat-mini fade-up"><div class="stat-icon-box green">▦</div><div><div class="stat-value">${stats.total_items || 0}</div><div class="stat-label">Inventory Items</div></div></div>
-            <div class="stat-mini fade-up"><div class="stat-icon-box amber">✦</div><div><div class="stat-value">${stats.total_purchase_orders || 0}</div><div class="stat-label">Purchase Orders</div></div></div>
+            <div class="stat-mini fade-up"><div class="stat-icon-box blue"><i class="fa-solid fa-users"></i></div><div><div class="stat-value">${stats.total_employees || 0}</div><div class="stat-label">Employees</div></div></div>
+            <div class="stat-mini fade-up"><div class="stat-icon-box green"><i class="fa-solid fa-boxes-stacked"></i></div><div><div class="stat-value">${stats.total_items || 0}</div><div class="stat-label">Inventory Items</div></div></div>
+            <div class="stat-mini fade-up"><div class="stat-icon-box amber"><i class="fa-solid fa-file-invoice"></i></div><div><div class="stat-value">${stats.total_purchase_orders || 0}</div><div class="stat-label">Purchase Orders</div></div></div>
         </div>
         ${isFinance ? `<div class="dash-grid">
-            <div class="card fade-up"><div class="card-header"><h3>Recent Journal Entries</h3><button class="btn btn-ghost btn-sm" onclick="navigateTo('journal-entries')">View All →</button></div>
+            <div class="card fade-up"><div class="card-header"><h3><i class="fa-solid fa-clock-rotate-left" style="color:var(--accent);opacity:0.7"></i> Recent Journal Entries</h3><button class="btn btn-ghost btn-sm" onclick="navigateTo('journal-entries')">View All <i class="fa-solid fa-arrow-right" style="font-size:10px"></i></button></div>
             <div class="card-body flush"><div class="table-wrap"><table class="tbl"><thead><tr><th>Entry #</th><th>Date</th><th>Description</th><th class="text-right">Amount</th><th>Status</th></tr></thead>
-            <tbody>${recent.length ? recent.slice(0, 8).map(je => `<tr><td class="cell-primary">${esc(je.entry_number)}</td><td>${fmtDate(je.date)}</td><td>${esc(je.description?.substring(0, 40))}</td><td class="text-right mono">${fmtCur(je.total_debit)}</td><td>${statusBadge(je.status || 'posted')}</td></tr>`).join('') : '<tr><td colspan="5" class="text-center text-muted" style="padding:24px">No entries yet</td></tr>'}</tbody></table></div></div></div>
-            <div class="card fade-up"><div class="card-header"><h3>System Health</h3></div><div class="card-body">
-                <div style="text-align:center;padding:12px 0">
-                    <div style="display:inline-flex;flex-direction:column;align-items:center;gap:8px">
-                        <div class="health-score-circle ${stats.is_balanced ? 'excellent' : 'poor'}"><span class="value">${stats.is_balanced ? '✓' : '!'}</span><span class="label">Balance</span></div>
+            <tbody>${recent.length ? recent.slice(0, 8).map(je => `<tr><td class="cell-primary">${esc(je.entry_number)}</td><td>${fmtDate(je.date)}</td><td>${esc(je.description?.substring(0, 40))}</td><td class="text-right mono">${fmtCur(je.total_debit)}</td><td>${statusBadge(je.status || 'posted')}</td></tr>`).join('') : '<tr><td colspan="5" class="text-center text-muted" style="padding:32px">No entries yet</td></tr>'}</tbody></table></div></div></div>
+            <div class="card fade-up"><div class="card-header"><h3><i class="fa-solid fa-heart-pulse" style="color:var(--success);opacity:0.7"></i> System Health</h3></div><div class="card-body">
+                <div style="text-align:center;padding:16px 0">
+                    <div style="display:inline-flex;flex-direction:column;align-items:center;gap:10px">
+                        <div class="health-score-circle ${stats.is_balanced ? 'excellent' : 'poor'}"><span class="value">${stats.is_balanced ? '<i class="fa-solid fa-check"></i>' : '<i class="fa-solid fa-exclamation"></i>'}</span><span class="label">Balance</span></div>
                         <span style="font-size:0.8125rem;font-weight:600;color:${stats.is_balanced ? 'var(--success)' : 'var(--danger)'}">${stats.is_balanced ? 'Books Balanced' : 'Imbalanced'}</span>
                     </div>
                 </div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
-                    <div style="background:var(--surface-hover);padding:12px;border-radius:var(--radius);text-align:center"><div style="font-size:0.6875rem;color:var(--text-muted);margin-bottom:4px">Accounts</div><div style="font-size:1.125rem;font-weight:700">${stats.total_accounts || 0}</div></div>
-                    <div style="background:var(--surface-hover);padding:12px;border-radius:var(--radius);text-align:center"><div style="font-size:0.6875rem;color:var(--text-muted);margin-bottom:4px">Journal Entries</div><div style="font-size:1.125rem;font-weight:700">${stats.total_journal_entries || 0}</div></div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px">
+                    <div style="background:var(--surface-hover);padding:16px;border-radius:var(--radius-lg);text-align:center"><div style="font-size:0.6875rem;color:var(--text-muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.04em">Accounts</div><div style="font-size:1.25rem;font-weight:700">${stats.total_accounts || 0}</div></div>
+                    <div style="background:var(--surface-hover);padding:16px;border-radius:var(--radius-lg);text-align:center"><div style="font-size:0.6875rem;color:var(--text-muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.04em">Journal Entries</div><div style="font-size:1.25rem;font-weight:700">${stats.total_journal_entries || 0}</div></div>
                 </div>
             </div></div>
-        </div>` : '<div class="card"><div class="card-body"><div class="empty-state"><div class="empty-icon">📊</div><h3>Welcome to FinCore</h3><p>Use the sidebar to navigate to your modules.</p></div></div></div>'}
+        </div>` : '<div class="card"><div class="card-body"><div class="empty-state"><div class="empty-icon"><i class="fa-solid fa-chart-column"></i></div><h3>Welcome to FinCore</h3><p>Use the sidebar to navigate to your modules.</p></div></div></div>'}
         </div>`;
     } catch (err) { document.getElementById('main-content').innerHTML = `<div class="card"><div class="card-body"><div class="empty-state"><h3>Error loading dashboard</h3><p>${esc(err.message)}</p></div></div></div>`; }
 }
@@ -248,10 +277,8 @@ async function renderAccounts() {
     showLoading();
     try {
         const accounts = await api('/accounting/accounts');
-        const main = document.getElementById('main-content');
-        const types = ['asset', 'liability', 'equity', 'revenue', 'expense'];
-        main.innerHTML = `<div class="fade-up">
-        <div class="card"><div class="card-header"><h3>Chart of Accounts ${tip('Master list of all financial accounts used to classify transactions')}</h3><div class="card-actions"><button class="btn btn-primary btn-sm" onclick="showCreateAccountModal()">+ Add Account</button></div></div>
+        document.getElementById('main-content').innerHTML = `<div class="fade-up">
+        <div class="card"><div class="card-header"><h3><i class="fa-solid fa-building-columns" style="color:var(--accent);opacity:0.7"></i> Chart of Accounts ${tip('Master list of all financial accounts used to classify transactions')}</h3><div class="card-actions"><button class="btn btn-primary btn-sm" onclick="showCreateAccountModal()"><i class="fa-solid fa-plus"></i> Add Account</button></div></div>
         <div class="card-body flush"><div class="table-wrap"><table class="tbl"><thead><tr><th>Code</th><th>Name</th><th>Type</th><th>Sub-Type</th><th class="text-right">Balance</th><th>Status</th></tr></thead>
         <tbody>${accounts.map(a => `<tr><td class="cell-primary mono">${esc(a.code)}</td><td>${esc(a.name)}</td><td><span class="badge-flat ${a.account_type === 'asset' ? 'blue' : a.account_type === 'revenue' ? 'green' : a.account_type === 'expense' ? 'red' : a.account_type === 'liability' ? 'amber' : 'indigo'}">${a.account_type}</span></td><td class="text-muted">${esc(a.sub_type || '—')}</td><td class="text-right mono">${fmtCur(a.balance)}</td><td>${a.is_active ? '<span class="badge badge-success">Active</span>' : '<span class="badge badge-neutral">Inactive</span>'}</td></tr>`).join('')}</tbody></table></div></div></div></div>`;
     } catch (err) { showAlert(err.message, 'error'); }
@@ -265,7 +292,7 @@ function showCreateAccountModal() {
             <div class="form-row"><div class="form-group"><label>Type <span class="req">*</span></label><select id="acc-type"><option value="asset">Asset</option><option value="liability">Liability</option><option value="equity">Equity</option><option value="revenue">Revenue</option><option value="expense">Expense</option></select></div>
             <div class="form-group"><label>Sub-Type</label><input type="text" id="acc-subtype" placeholder="Optional"></div></div>
             <div class="form-group"><label>Description</label><textarea id="acc-desc" rows="2" placeholder="Optional description"></textarea></div>
-        </form>`, `<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="createAccount()">Create Account</button>`);
+        </form>`, `<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="createAccount()"><i class="fa-solid fa-check"></i> Create Account</button>`);
 }
 
 async function createAccount() {
@@ -285,10 +312,10 @@ async function renderJournalEntries() {
     try {
         const entries = await api('/accounting/journal-entries');
         document.getElementById('main-content').innerHTML = `<div class="fade-up">
-        <div class="card"><div class="card-header"><h3>Journal Entries ${tip('Double-entry bookkeeping records. Each entry must have equal debits and credits')}</h3><div class="card-actions"><button class="btn btn-primary btn-sm" onclick="showCreateJEModal()">+ New Entry</button></div></div>
+        <div class="card"><div class="card-header"><h3><i class="fa-solid fa-book" style="color:var(--accent);opacity:0.7"></i> Journal Entries ${tip('Double-entry bookkeeping records. Each entry must have equal debits and credits')}</h3><div class="card-actions"><button class="btn btn-primary btn-sm" onclick="showCreateJEModal()"><i class="fa-solid fa-plus"></i> New Entry</button></div></div>
         <div class="card-body flush"><div class="table-wrap"><table class="tbl"><thead><tr><th>Entry #</th><th>Date</th><th>Description</th><th class="text-right">Debit</th><th class="text-right">Credit</th><th>Status</th><th></th></tr></thead>
         <tbody>${entries.map(je => `<tr><td class="cell-primary">${esc(je.entry_number)}</td><td>${fmtDate(je.date)}</td><td>${esc(je.description?.substring(0, 50))}</td><td class="text-right mono">${fmtCur(je.total_debit)}</td><td class="text-right mono">${fmtCur(je.total_credit)}</td><td>${statusBadge(je.status)}</td>
-        <td><div class="tbl-actions"><button class="btn-icon" onclick="viewJE(${je.id})" title="View">⊙</button>${je.status === 'draft' ? `<button class="btn-icon" onclick="postJE(${je.id})" title="Post">✓</button>` : ''}</div></td></tr>`).join('')}</tbody></table></div></div></div></div>`;
+        <td><div class="tbl-actions"><button class="btn-icon" onclick="viewJE(${je.id})" title="View"><i class="fa-solid fa-eye"></i></button>${je.status === 'draft' ? `<button class="btn-icon" onclick="postJE(${je.id})" title="Post"><i class="fa-solid fa-check"></i></button>` : ''}</div></td></tr>`).join('')}</tbody></table></div></div></div></div>`;
     } catch (err) { showAlert(err.message, 'error'); }
 }
 
@@ -322,10 +349,10 @@ function showCreateJEModal() {
     showModalLg('New Journal Entry', `
         <form id="form-je">
             <div class="form-row"><div class="form-group"><label>Date <span class="req">*</span></label><input type="date" id="je-date" required></div><div class="form-group"><label>Description <span class="req">*</span></label><input type="text" id="je-desc" required></div></div>
-            <h4 style="margin:16px 0 8px;font-size:0.8125rem">Line Items</h4>
+            <h4 style="margin:16px 0 8px;font-size:0.8125rem"><i class="fa-solid fa-list" style="margin-right:4px;opacity:0.5"></i> Line Items</h4>
             <div id="je-lines">${getLinesHTML()}</div>
-            <button type="button" class="btn btn-ghost btn-sm" onclick="addJELine()" style="margin-top:8px">+ Add Line</button>
-        </form>`, `<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="createJE()">Create Entry</button>`);
+            <button type="button" class="btn btn-ghost btn-sm" onclick="addJELine()" style="margin-top:8px"><i class="fa-solid fa-plus"></i> Add Line</button>
+        </form>`, `<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="createJE()"><i class="fa-solid fa-check"></i> Create Entry</button>`);
     window._jeLineCount = lineCount;
 }
 
@@ -355,7 +382,7 @@ async function renderLedger() {
     try {
         const accounts = await api('/accounting/accounts');
         document.getElementById('main-content').innerHTML = `<div class="fade-up">
-        <div class="card"><div class="card-header"><h3>General Ledger ${tip('All posted journal entry lines for a specific account with running balance')}</h3></div>
+        <div class="card"><div class="card-header"><h3><i class="fa-solid fa-rectangle-list" style="color:var(--accent);opacity:0.7"></i> General Ledger ${tip('All posted journal entry lines for a specific account with running balance')}</h3></div>
         <div class="card-body"><div class="form-row"><div class="form-group"><label>Select Account</label><select id="ledger-account" onchange="loadLedger()"><option value="">Choose an account…</option>${accounts.map(a => `<option value="${a.id}">${esc(a.code)} — ${esc(a.name)}</option>`).join('')}</select></div></div>
         <div id="ledger-data"></div></div></div></div>`;
     } catch (err) { showAlert(err.message, 'error'); }
@@ -370,7 +397,7 @@ async function loadLedger() {
         const data = await api(`/accounting/ledger/${accId}`);
         const entries = data.entries || data;
         el.innerHTML = `<div class="table-wrap"><table class="tbl"><thead><tr><th>Date</th><th>Entry #</th><th>Description</th><th class="text-right">Debit</th><th class="text-right">Credit</th><th class="text-right">Balance</th></tr></thead>
-        <tbody>${Array.isArray(entries) && entries.length ? entries.map(e => `<tr><td>${fmtDate(e.date)}</td><td class="cell-primary">${esc(e.entry_number || '')}</td><td>${esc(e.description || '')}</td><td class="text-right mono">${parseFloat(e.debit) > 0 ? fmtCur(e.debit) : '—'}</td><td class="text-right mono">${parseFloat(e.credit) > 0 ? fmtCur(e.credit) : '—'}</td><td class="text-right mono font-bold">${fmtCur(e.running_balance ?? e.balance ?? 0)}</td></tr>`).join('') : '<tr><td colspan="6" class="text-center text-muted" style="padding:24px">No ledger entries found</td></tr>'}</tbody></table></div>`;
+        <tbody>${Array.isArray(entries) && entries.length ? entries.map(e => `<tr><td>${fmtDate(e.date)}</td><td class="cell-primary">${esc(e.entry_number || '')}</td><td>${esc(e.description || '')}</td><td class="text-right mono">${parseFloat(e.debit) > 0 ? fmtCur(e.debit) : '—'}</td><td class="text-right mono">${parseFloat(e.credit) > 0 ? fmtCur(e.credit) : '—'}</td><td class="text-right mono font-bold">${fmtCur(e.running_balance ?? e.balance ?? 0)}</td></tr>`).join('') : '<tr><td colspan="6" class="text-center text-muted" style="padding:32px">No ledger entries found</td></tr>'}</tbody></table></div>`;
     } catch (err) { el.innerHTML = `<div class="empty-state"><p>${esc(err.message)}</p></div>`; }
 }
 
@@ -381,7 +408,7 @@ async function renderTrialBalance() {
         const tb = await api('/accounting/trial-balance');
         const accs = tb.entries || tb.accounts || [];
         document.getElementById('main-content').innerHTML = `<div class="fade-up">
-        <div class="card"><div class="card-header"><h3>Trial Balance ${tip('Report listing all accounts with debit and credit totals. Must be balanced')}</h3><div class="card-actions">${tb.is_balanced ? '<span class="badge badge-success">Balanced</span>' : '<span class="badge badge-danger">Imbalanced</span>'}</div></div>
+        <div class="card"><div class="card-header"><h3><i class="fa-solid fa-scale-balanced" style="color:var(--accent);opacity:0.7"></i> Trial Balance ${tip('Report listing all accounts with debit and credit totals. Must be balanced')}</h3><div class="card-actions">${tb.is_balanced ? '<span class="badge badge-success"><i class="fa-solid fa-check" style="font-size:9px"></i> Balanced</span>' : '<span class="badge badge-danger"><i class="fa-solid fa-exclamation" style="font-size:9px"></i> Imbalanced</span>'}</div></div>
         <div class="card-body flush"><div class="table-wrap"><table class="tbl"><thead><tr><th>Code</th><th>Account Name</th><th>Type</th><th class="text-right">Debit</th><th class="text-right">Credit</th></tr></thead>
         <tbody>${accs.map(a => `<tr><td class="mono">${esc(a.account_code || a.code)}</td><td class="cell-primary">${esc(a.account_name || a.name)}</td><td><span class="badge-flat ${a.account_type === 'asset' ? 'blue' : a.account_type === 'revenue' ? 'green' : a.account_type === 'expense' ? 'red' : a.account_type === 'liability' ? 'amber' : 'indigo'}">${a.account_type}</span></td><td class="text-right mono">${fmtCur(a.debit_balance || a.debit)}</td><td class="text-right mono">${fmtCur(a.credit_balance || a.credit)}</td></tr>`).join('')}</tbody>
         <tfoot><tr><td colspan="3" class="cell-primary">Total</td><td class="text-right mono">${fmtCur(tb.total_debits)}</td><td class="text-right mono">${fmtCur(tb.total_credits)}</td></tr></tfoot></table></div></div></div></div>`;
@@ -395,12 +422,12 @@ async function renderIncomeStatement() {
         const data = await api('/accounting/reports/income-statement?start_date=2025-01-01&end_date=2025-12-31');
         const revItems = (data.revenue_section?.line_items || data.revenue_accounts || []);
         const expItems = (data.expense_section?.line_items || data.expense_accounts || []);
-        document.getElementById('main-content').innerHTML = `<div class="fade-up"><div class="card"><div class="card-header"><h3>Income Statement ${tip('Revenue minus Expenses. Positive net income means profit')}</h3></div>
+        document.getElementById('main-content').innerHTML = `<div class="fade-up"><div class="card"><div class="card-header"><h3><i class="fa-solid fa-arrow-trend-up" style="color:var(--accent);opacity:0.7"></i> Income Statement ${tip('Revenue minus Expenses. Positive net income means profit')}</h3></div>
         <div class="card-body">
             <div class="report-header"><h2>Income Statement</h2><p>For the period Jan 1, 2025 — Dec 31, 2025</p></div>
-            <div class="report-section"><h4>Revenue</h4><table class="tbl"><tbody>${revItems.map(a => `<tr><td>${esc(a.account_name || a.name)}</td><td class="text-right mono">${fmtCur(a.amount || a.balance)}</td></tr>`).join('') || '<tr><td colspan="2" class="text-muted">No revenue accounts</td></tr>'}</tbody><tfoot><tr><td class="cell-primary">Total Revenue</td><td class="text-right mono">${fmtCur(data.total_revenue)}</td></tr></tfoot></table></div>
-            <div class="report-section"><h4>Expenses</h4><table class="tbl"><tbody>${expItems.map(a => `<tr><td>${esc(a.account_name || a.name)}</td><td class="text-right mono">${fmtCur(a.amount || a.balance)}</td></tr>`).join('') || '<tr><td colspan="2" class="text-muted">No expense accounts</td></tr>'}</tbody><tfoot><tr><td class="cell-primary">Total Expenses</td><td class="text-right mono">${fmtCur(data.total_expenses)}</td></tr></tfoot></table></div>
-            <div style="background:${parseFloat(data.net_income) >= 0 ? 'var(--success-light)' : 'var(--danger-light)'};padding:16px 20px;border-radius:var(--radius);display:flex;justify-content:space-between;align-items:center;margin-top:24px"><span style="font-weight:700;font-size:1rem">Net Income</span><span style="font-weight:700;font-size:1.25rem;color:${parseFloat(data.net_income) >= 0 ? 'var(--success)' : 'var(--danger)'}">${fmtCur(data.net_income)}</span></div>
+            <div class="report-section"><h4><i class="fa-solid fa-arrow-up" style="margin-right:4px"></i> Revenue</h4><table class="tbl"><tbody>${revItems.map(a => `<tr><td>${esc(a.account_name || a.name)}</td><td class="text-right mono">${fmtCur(a.amount || a.balance)}</td></tr>`).join('') || '<tr><td colspan="2" class="text-muted">No revenue accounts</td></tr>'}</tbody><tfoot><tr><td class="cell-primary">Total Revenue</td><td class="text-right mono">${fmtCur(data.total_revenue)}</td></tr></tfoot></table></div>
+            <div class="report-section"><h4><i class="fa-solid fa-arrow-down" style="margin-right:4px"></i> Expenses</h4><table class="tbl"><tbody>${expItems.map(a => `<tr><td>${esc(a.account_name || a.name)}</td><td class="text-right mono">${fmtCur(a.amount || a.balance)}</td></tr>`).join('') || '<tr><td colspan="2" class="text-muted">No expense accounts</td></tr>'}</tbody><tfoot><tr><td class="cell-primary">Total Expenses</td><td class="text-right mono">${fmtCur(data.total_expenses)}</td></tr></tfoot></table></div>
+            <div style="background:${parseFloat(data.net_income) >= 0 ? 'var(--success-light)' : 'var(--danger-light)'};padding:18px 24px;border-radius:var(--radius-lg);display:flex;justify-content:space-between;align-items:center;margin-top:24px"><span style="font-weight:700;font-size:1rem"><i class="fa-solid ${parseFloat(data.net_income) >= 0 ? 'fa-circle-check' : 'fa-circle-xmark'}" style="margin-right:6px"></i> Net Income</span><span style="font-weight:700;font-size:1.25rem;color:${parseFloat(data.net_income) >= 0 ? 'var(--success)' : 'var(--danger)'}">${fmtCur(data.net_income)}</span></div>
         </div></div></div>`;
     } catch (err) { showAlert(err.message, 'error'); }
 }
@@ -413,13 +440,13 @@ async function renderBalanceSheet() {
         const assetItems = (data.assets_section?.line_items || data.assets || []);
         const liabItems = (data.liabilities_section?.line_items || data.liabilities || []);
         const eqItems = (data.equity_section?.line_items || data.equity || []);
-        document.getElementById('main-content').innerHTML = `<div class="fade-up"><div class="card"><div class="card-header"><h3>Balance Sheet ${tip('Snapshot of financial position. Assets = Liabilities + Equity')}</h3><div class="card-actions">${data.is_balanced ? '<span class="badge badge-success">A = L + E</span>' : '<span class="badge badge-danger">Imbalanced</span>'}</div></div>
+        document.getElementById('main-content').innerHTML = `<div class="fade-up"><div class="card"><div class="card-header"><h3><i class="fa-solid fa-layer-group" style="color:var(--accent);opacity:0.7"></i> Balance Sheet ${tip('Snapshot of financial position. Assets = Liabilities + Equity')}</h3><div class="card-actions">${data.is_balanced ? '<span class="badge badge-success">A = L + E</span>' : '<span class="badge badge-danger">Imbalanced</span>'}</div></div>
         <div class="card-body">
             <div class="report-header"><h2>Balance Sheet</h2><p>As of ${fmtDate(data.as_of_date || new Date().toISOString())}</p></div>
-            <div class="report-section"><h4>Assets</h4><table class="tbl"><tbody>${assetItems.map(a => `<tr><td>${esc(a.account_name || a.name)}</td><td class="text-right mono">${fmtCur(a.balance || a.amount)}</td></tr>`).join('')}</tbody><tfoot><tr><td class="cell-primary">Total Assets</td><td class="text-right mono">${fmtCur(data.total_assets)}</td></tr></tfoot></table></div>
-            <div class="report-section"><h4>Liabilities</h4><table class="tbl"><tbody>${liabItems.map(a => `<tr><td>${esc(a.account_name || a.name)}</td><td class="text-right mono">${fmtCur(a.balance || a.amount)}</td></tr>`).join('')}</tbody><tfoot><tr><td class="cell-primary">Total Liabilities</td><td class="text-right mono">${fmtCur(data.total_liabilities)}</td></tr></tfoot></table></div>
-            <div class="report-section"><h4>Equity</h4><table class="tbl"><tbody>${eqItems.map(a => `<tr><td>${esc(a.account_name || a.name)}</td><td class="text-right mono">${fmtCur(a.balance || a.amount)}</td></tr>`).join('')}</tbody><tfoot><tr><td class="cell-primary">Total Equity</td><td class="text-right mono">${fmtCur(data.total_equity)}</td></tr></tfoot></table></div>
-            <div style="background:var(--surface-hover);padding:16px 20px;border-radius:var(--radius);display:flex;justify-content:space-between;margin-top:20px"><span style="font-weight:700">Liabilities + Equity</span><span class="mono font-bold">${fmtCur(data.liabilities_and_equity)}</span></div>
+            <div class="report-section"><h4><i class="fa-solid fa-building" style="margin-right:4px"></i> Assets</h4><table class="tbl"><tbody>${assetItems.map(a => `<tr><td>${esc(a.account_name || a.name)}</td><td class="text-right mono">${fmtCur(a.balance || a.amount)}</td></tr>`).join('')}</tbody><tfoot><tr><td class="cell-primary">Total Assets</td><td class="text-right mono">${fmtCur(data.total_assets)}</td></tr></tfoot></table></div>
+            <div class="report-section"><h4><i class="fa-solid fa-hand-holding-dollar" style="margin-right:4px"></i> Liabilities</h4><table class="tbl"><tbody>${liabItems.map(a => `<tr><td>${esc(a.account_name || a.name)}</td><td class="text-right mono">${fmtCur(a.balance || a.amount)}</td></tr>`).join('')}</tbody><tfoot><tr><td class="cell-primary">Total Liabilities</td><td class="text-right mono">${fmtCur(data.total_liabilities)}</td></tr></tfoot></table></div>
+            <div class="report-section"><h4><i class="fa-solid fa-coins" style="margin-right:4px"></i> Equity</h4><table class="tbl"><tbody>${eqItems.map(a => `<tr><td>${esc(a.account_name || a.name)}</td><td class="text-right mono">${fmtCur(a.balance || a.amount)}</td></tr>`).join('')}</tbody><tfoot><tr><td class="cell-primary">Total Equity</td><td class="text-right mono">${fmtCur(data.total_equity)}</td></tr></tfoot></table></div>
+            <div style="background:var(--surface-hover);padding:18px 24px;border-radius:var(--radius-lg);display:flex;justify-content:space-between;margin-top:20px"><span style="font-weight:700">Liabilities + Equity</span><span class="mono font-bold">${fmtCur(data.liabilities_and_equity)}</span></div>
         </div></div></div>`;
     } catch (err) { showAlert(err.message, 'error'); }
 }
@@ -430,15 +457,15 @@ async function renderCashFlow() {
     try {
         const data = await api('/accounting/reports/cash-flow?start_date=2025-01-01&end_date=2025-12-31');
         const sections = [
-            { title: 'Operating Activities', items: data.operating_activities?.line_items || data.operating_activities || [], total: data.operating_activities?.section_total || data.total_operating },
-            { title: 'Investing Activities', items: data.investing_activities?.line_items || data.investing_activities || [], total: data.investing_activities?.section_total || data.total_investing },
-            { title: 'Financing Activities', items: data.financing_activities?.line_items || data.financing_activities || [], total: data.financing_activities?.section_total || data.total_financing }
+            { title: 'Operating Activities', icon: 'fa-gears', items: data.operating_activities?.line_items || data.operating_activities || [], total: data.operating_activities?.section_total || data.total_operating },
+            { title: 'Investing Activities', icon: 'fa-chart-line', items: data.investing_activities?.line_items || data.investing_activities || [], total: data.investing_activities?.section_total || data.total_investing },
+            { title: 'Financing Activities', icon: 'fa-landmark', items: data.financing_activities?.line_items || data.financing_activities || [], total: data.financing_activities?.section_total || data.total_financing }
         ];
-        document.getElementById('main-content').innerHTML = `<div class="fade-up"><div class="card"><div class="card-header"><h3>Cash Flow Statement ${tip('Cash movements: Operating, Investing, and Financing activities')}</h3></div>
+        document.getElementById('main-content').innerHTML = `<div class="fade-up"><div class="card"><div class="card-header"><h3><i class="fa-solid fa-money-bill-transfer" style="color:var(--accent);opacity:0.7"></i> Cash Flow Statement ${tip('Cash movements: Operating, Investing, and Financing activities')}</h3></div>
         <div class="card-body">
             <div class="report-header"><h2>Cash Flow Statement</h2><p>For the period Jan 1, 2025 — Dec 31, 2025</p></div>
-            ${sections.map(s => `<div class="report-section"><h4>${s.title}</h4><table class="tbl"><tbody>${s.items.length ? s.items.map(i => `<tr><td>${esc(i.name || i.description)}</td><td class="text-right mono">${fmtCur(i.amount || i.balance)}</td></tr>`).join('') : '<tr><td colspan="2" class="text-muted">No items</td></tr>'}</tbody>${s.total !== undefined ? `<tfoot><tr><td class="cell-primary">Total</td><td class="text-right mono">${fmtCur(s.total)}</td></tr></tfoot>` : ''}</table></div>`).join('')}
-            <div style="background:var(--accent-light);padding:16px 20px;border-radius:var(--radius);display:flex;justify-content:space-between;margin-top:20px"><span style="font-weight:700;color:var(--accent)">Net Cash Flow</span><span class="mono font-bold" style="color:var(--accent)">${fmtCur(data.net_cash_flow)}</span></div>
+            ${sections.map(s => `<div class="report-section"><h4><i class="fa-solid ${s.icon}" style="margin-right:4px"></i> ${s.title}</h4><table class="tbl"><tbody>${s.items.length ? s.items.map(i => `<tr><td>${esc(i.name || i.description)}</td><td class="text-right mono">${fmtCur(i.amount || i.balance)}</td></tr>`).join('') : '<tr><td colspan="2" class="text-muted">No items</td></tr>'}</tbody>${s.total !== undefined ? `<tfoot><tr><td class="cell-primary">Total</td><td class="text-right mono">${fmtCur(s.total)}</td></tr></tfoot>` : ''}</table></div>`).join('')}
+            <div style="background:var(--accent-light);padding:18px 24px;border-radius:var(--radius-lg);display:flex;justify-content:space-between;margin-top:20px"><span style="font-weight:700;color:var(--accent)"><i class="fa-solid fa-arrow-right-arrow-left" style="margin-right:6px"></i> Net Cash Flow</span><span class="mono font-bold" style="color:var(--accent)">${fmtCur(data.net_cash_flow)}</span></div>
         </div></div></div>`;
     } catch (err) { showAlert(err.message, 'error'); }
 }
@@ -449,7 +476,7 @@ async function renderTransactions() {
     try {
         const txns = await api('/finance/transactions');
         document.getElementById('main-content').innerHTML = `<div class="fade-up">
-        <div class="card"><div class="card-header"><h3>Financial Transactions</h3><div class="card-actions"><button class="btn btn-primary btn-sm" onclick="showCreateTxnModal()">+ New Transaction</button></div></div>
+        <div class="card"><div class="card-header"><h3><i class="fa-solid fa-receipt" style="color:var(--accent);opacity:0.7"></i> Financial Transactions</h3><div class="card-actions"><button class="btn btn-primary btn-sm" onclick="showCreateTxnModal()"><i class="fa-solid fa-plus"></i> New Transaction</button></div></div>
         <div class="card-body flush"><div class="table-wrap"><table class="tbl"><thead><tr><th>Date</th><th>Type</th><th>Category</th><th>Description</th><th class="text-right">Amount</th><th>JE</th></tr></thead>
         <tbody>${txns.map(t => `<tr><td>${fmtDate(t.transaction_date)}</td><td><span class="badge-flat ${t.transaction_type === 'income' ? 'green' : 'red'}">${t.transaction_type}</span></td><td class="cell-primary">${esc(t.category)}</td><td>${esc(t.description?.substring(0, 40))}</td><td class="text-right mono">${fmtCur(t.amount)}</td><td>${t.journal_entry_id ? '<span class="badge badge-success">Linked</span>' : '—'}</td></tr>`).join('')}</tbody></table></div></div></div></div>`;
     } catch (err) { showAlert(err.message, 'error'); }
@@ -463,7 +490,7 @@ function showCreateTxnModal() {
             <div class="form-row"><div class="form-group"><label>Category <span class="req">*</span></label><input type="text" id="txn-cat" required></div>
             <div class="form-group"><label>Amount <span class="req">*</span></label><input type="number" step="0.01" id="txn-amt" required></div></div>
             <div class="form-group"><label>Description</label><input type="text" id="txn-desc"></div>
-        </form>`, `<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="createTxn()">Create</button>`);
+        </form>`, `<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="createTxn()"><i class="fa-solid fa-check"></i> Create</button>`);
 }
 
 async function createTxn() {
@@ -483,10 +510,10 @@ async function renderEmployees() {
     try {
         const emps = await api('/hr/employees');
         document.getElementById('main-content').innerHTML = `<div class="fade-up">
-        <div class="card"><div class="card-header"><h3>Employees</h3><div class="card-actions"><button class="btn btn-primary btn-sm" onclick="showCreateEmployeeModal()">+ Add Employee</button></div></div>
+        <div class="card"><div class="card-header"><h3><i class="fa-solid fa-users" style="color:var(--accent);opacity:0.7"></i> Employees</h3><div class="card-actions"><button class="btn btn-primary btn-sm" onclick="showCreateEmployeeModal()"><i class="fa-solid fa-plus"></i> Add Employee</button></div></div>
         <div class="card-body flush"><div class="table-wrap"><table class="tbl"><thead><tr><th>Code</th><th>Name</th><th>Department</th><th>Designation</th><th class="text-right">Salary</th><th>Status</th><th></th></tr></thead>
         <tbody>${emps.map(e => `<tr><td class="cell-primary mono">${esc(e.employee_code)}</td><td>${esc(e.first_name)} ${esc(e.last_name)}</td><td>${esc(e.department_name || '—')}</td><td>${esc(e.designation_name || '—')}</td><td class="text-right mono">${fmtCur(e.salary)}</td><td>${statusBadge(e.status || 'active')}</td>
-        <td><div class="tbl-actions"><button class="btn-icon" onclick="showEditEmployeeModal(${e.id})" title="Edit">✎</button></div></td></tr>`).join('')}</tbody></table></div></div></div></div>`;
+        <td><div class="tbl-actions"><button class="btn-icon" onclick="showEditEmployeeModal(${e.id})" title="Edit"><i class="fa-solid fa-pen"></i></button></div></td></tr>`).join('')}</tbody></table></div></div></div></div>`;
     } catch (err) { showAlert(err.message, 'error'); }
 }
 
@@ -501,7 +528,7 @@ function showCreateEmployeeModal() {
             <div class="form-group"><label>Designation ID</label><input type="number" id="emp-desg"></div></div>
             <div class="form-row"><div class="form-group"><label>Salary <span class="req">*</span></label><input type="number" step="0.01" id="emp-salary" required></div>
             <div class="form-group"><label>Date of Joining</label><input type="date" id="emp-doj"></div></div>
-        </form>`, `<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="createEmployee()">Create</button>`);
+        </form>`, `<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="createEmployee()"><i class="fa-solid fa-check"></i> Create</button>`);
 }
 
 async function createEmployee() {
@@ -527,7 +554,7 @@ async function showEditEmployeeModal(id) {
                 <div class="form-group"><label>Last Name</label><input type="text" id="edit-lname" value="${esc(e.last_name)}"></div></div>
                 <div class="form-row"><div class="form-group"><label>Email</label><input type="email" id="edit-email" value="${esc(e.email)}"></div>
                 <div class="form-group"><label>Salary</label><input type="number" step="0.01" id="edit-salary" value="${e.salary}"></div></div>
-            </form>`, `<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="updateEmployee(${id})">Save</button>`);
+            </form>`, `<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="updateEmployee(${id})"><i class="fa-solid fa-check"></i> Save</button>`);
     } catch (err) { showAlert(err.message, 'error'); }
 }
 
@@ -541,58 +568,41 @@ async function updateEmployee(id) {
     } catch (err) { showAlert(err.message, 'error'); }
 }
 
-// === 18. Departments ===
+// === 18-19. Departments & Designations ===
 async function renderDepartments() {
     showLoading();
     try {
         const depts = await api('/hr/departments');
         document.getElementById('main-content').innerHTML = `<div class="fade-up">
-        <div class="card"><div class="card-header"><h3>Departments</h3><div class="card-actions"><button class="btn btn-primary btn-sm" onclick="showCreateDeptModal()">+ Add</button></div></div>
+        <div class="card"><div class="card-header"><h3><i class="fa-solid fa-sitemap" style="color:var(--accent);opacity:0.7"></i> Departments</h3><div class="card-actions"><button class="btn btn-primary btn-sm" onclick="showCreateDeptModal()"><i class="fa-solid fa-plus"></i> Add</button></div></div>
         <div class="card-body flush"><div class="table-wrap"><table class="tbl"><thead><tr><th>Name</th><th>Code</th><th>Description</th></tr></thead>
         <tbody>${depts.map(d => `<tr><td class="cell-primary">${esc(d.name)}</td><td class="mono">${esc(d.code || '—')}</td><td class="text-muted">${esc(d.description || '—')}</td></tr>`).join('')}</tbody></table></div></div></div></div>`;
     } catch (err) { showAlert(err.message, 'error'); }
 }
-
 function showCreateDeptModal() {
-    showModal('New Department', `
-        <form id="form-dept"><div class="form-group"><label>Name <span class="req">*</span></label><input type="text" id="dept-name" required></div>
-        <div class="form-group"><label>Code</label><input type="text" id="dept-code"></div>
-        <div class="form-group"><label>Description</label><textarea id="dept-desc" rows="2"></textarea></div></form>`,
-    `<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="createDept()">Create</button>`);
+    showModal('New Department', `<form id="form-dept"><div class="form-group"><label>Name <span class="req">*</span></label><input type="text" id="dept-name" required></div><div class="form-group"><label>Code</label><input type="text" id="dept-code"></div><div class="form-group"><label>Description</label><textarea id="dept-desc" rows="2"></textarea></div></form>`,
+    `<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="createDept()"><i class="fa-solid fa-check"></i> Create</button>`);
 }
-
 async function createDept() {
-    try {
-        await api('/hr/departments', { method: 'POST', body: JSON.stringify({ name: document.getElementById('dept-name').value, code: document.getElementById('dept-code').value || null, description: document.getElementById('dept-desc').value || null }) });
-        closeModal(); showAlert('Department created', 'success'); renderDepartments();
-    } catch (err) { showAlert(err.message, 'error'); }
+    try { await api('/hr/departments', { method: 'POST', body: JSON.stringify({ name: document.getElementById('dept-name').value, code: document.getElementById('dept-code').value || null, description: document.getElementById('dept-desc').value || null }) }); closeModal(); showAlert('Department created', 'success'); renderDepartments(); } catch (err) { showAlert(err.message, 'error'); }
 }
 
-// === 19. Designations ===
 async function renderDesignations() {
     showLoading();
     try {
         const desgs = await api('/hr/designations');
         document.getElementById('main-content').innerHTML = `<div class="fade-up">
-        <div class="card"><div class="card-header"><h3>Designations</h3><div class="card-actions"><button class="btn btn-primary btn-sm" onclick="showCreateDesgModal()">+ Add</button></div></div>
+        <div class="card"><div class="card-header"><h3><i class="fa-solid fa-id-badge" style="color:var(--accent);opacity:0.7"></i> Designations</h3><div class="card-actions"><button class="btn btn-primary btn-sm" onclick="showCreateDesgModal()"><i class="fa-solid fa-plus"></i> Add</button></div></div>
         <div class="card-body flush"><div class="table-wrap"><table class="tbl"><thead><tr><th>Title</th><th>Level</th><th>Description</th></tr></thead>
         <tbody>${desgs.map(d => `<tr><td class="cell-primary">${esc(d.title)}</td><td>${esc(d.level || '—')}</td><td class="text-muted">${esc(d.description || '—')}</td></tr>`).join('')}</tbody></table></div></div></div></div>`;
     } catch (err) { showAlert(err.message, 'error'); }
 }
-
 function showCreateDesgModal() {
-    showModal('New Designation', `
-        <form><div class="form-group"><label>Title <span class="req">*</span></label><input type="text" id="desg-title" required></div>
-        <div class="form-group"><label>Level</label><input type="text" id="desg-level"></div>
-        <div class="form-group"><label>Description</label><textarea id="desg-desc" rows="2"></textarea></div></form>`,
-    `<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="createDesg()">Create</button>`);
+    showModal('New Designation', `<form><div class="form-group"><label>Title <span class="req">*</span></label><input type="text" id="desg-title" required></div><div class="form-group"><label>Level</label><input type="text" id="desg-level"></div><div class="form-group"><label>Description</label><textarea id="desg-desc" rows="2"></textarea></div></form>`,
+    `<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="createDesg()"><i class="fa-solid fa-check"></i> Create</button>`);
 }
-
 async function createDesg() {
-    try {
-        await api('/hr/designations', { method: 'POST', body: JSON.stringify({ title: document.getElementById('desg-title').value, level: document.getElementById('desg-level').value || null, description: document.getElementById('desg-desc').value || null }) });
-        closeModal(); showAlert('Designation created', 'success'); renderDesignations();
-    } catch (err) { showAlert(err.message, 'error'); }
+    try { await api('/hr/designations', { method: 'POST', body: JSON.stringify({ title: document.getElementById('desg-title').value, level: document.getElementById('desg-level').value || null, description: document.getElementById('desg-desc').value || null }) }); closeModal(); showAlert('Designation created', 'success'); renderDesignations(); } catch (err) { showAlert(err.message, 'error'); }
 }
 
 // === 20. Payroll ===
@@ -601,13 +611,12 @@ async function renderPayroll() {
     try {
         const payrolls = await api('/hr/payrolls');
         document.getElementById('main-content').innerHTML = `<div class="fade-up">
-        <div class="card"><div class="card-header"><h3>Payroll</h3><div class="card-actions"><button class="btn btn-primary btn-sm" onclick="showCreatePayrollModal()">+ Run Payroll</button></div></div>
+        <div class="card"><div class="card-header"><h3><i class="fa-solid fa-indian-rupee-sign" style="color:var(--accent);opacity:0.7"></i> Payroll</h3><div class="card-actions"><button class="btn btn-primary btn-sm" onclick="showCreatePayrollModal()"><i class="fa-solid fa-plus"></i> Run Payroll</button></div></div>
         <div class="card-body flush"><div class="table-wrap"><table class="tbl"><thead><tr><th>Employee</th><th>Period</th><th class="text-right">Gross</th><th class="text-right">Deductions</th><th class="text-right">Net</th><th>Status</th><th></th></tr></thead>
         <tbody>${payrolls.map(p => `<tr><td class="cell-primary">${esc(p.employee_name || 'Emp #' + p.employee_id)}</td><td>${fmtDate(p.pay_period_start)} — ${fmtDate(p.pay_period_end)}</td><td class="text-right mono">${fmtCur(p.gross_salary)}</td><td class="text-right mono">${fmtCur(p.total_deductions)}</td><td class="text-right mono font-bold">${fmtCur(p.net_salary)}</td><td>${statusBadge(p.status)}</td>
-        <td><div class="tbl-actions">${p.status === 'draft' ? `<button class="btn-icon" onclick="processPayroll(${p.id})" title="Process">▶</button><button class="btn-icon danger" onclick="cancelPayroll(${p.id})" title="Cancel">✕</button>` : ''}${p.status === 'processed' ? `<button class="btn-icon" onclick="payPayroll(${p.id})" title="Pay">₹</button>` : ''}</div></td></tr>`).join('')}</tbody></table></div></div></div></div>`;
+        <td><div class="tbl-actions">${p.status === 'draft' ? `<button class="btn-icon" onclick="processPayroll(${p.id})" title="Process"><i class="fa-solid fa-play"></i></button><button class="btn-icon danger" onclick="cancelPayroll(${p.id})" title="Cancel"><i class="fa-solid fa-xmark"></i></button>` : ''}${p.status === 'processed' ? `<button class="btn-icon" onclick="payPayroll(${p.id})" title="Pay"><i class="fa-solid fa-indian-rupee-sign"></i></button>` : ''}</div></td></tr>`).join('')}</tbody></table></div></div></div></div>`;
     } catch (err) { showAlert(err.message, 'error'); }
 }
-
 async function processPayroll(id) { try { await api(`/hr/payrolls/${id}/process`, { method: 'POST' }); showAlert('Payroll processed', 'success'); renderPayroll(); } catch (err) { showAlert(err.message, 'error'); } }
 async function payPayroll(id) { try { await api(`/hr/payrolls/${id}/pay`, { method: 'POST' }); showAlert('Payroll paid', 'success'); renderPayroll(); } catch (err) { showAlert(err.message, 'error'); } }
 async function cancelPayroll(id) { try { await api(`/hr/payrolls/${id}/cancel`, { method: 'POST' }); showAlert('Payroll cancelled', 'success'); renderPayroll(); } catch (err) { showAlert(err.message, 'error'); } }
@@ -618,167 +627,90 @@ function showCreatePayrollModal() {
             <div class="form-row"><div class="form-group"><label>Employee ID <span class="req">*</span></label><input type="number" id="pr-emp" required></div>
             <div class="form-group"><label>Period Start <span class="req">*</span></label><input type="date" id="pr-start" required></div></div>
             <div class="form-row"><div class="form-group"><label>Period End <span class="req">*</span></label><input type="date" id="pr-end" required></div><div class="form-group"></div></div>
-            <h4 style="margin:16px 0 8px;font-size:0.8125rem">Components</h4>
+            <h4 style="margin:16px 0 8px;font-size:0.8125rem"><i class="fa-solid fa-list" style="margin-right:4px;opacity:0.5"></i> Components</h4>
             <div id="pr-components">
                 <div class="form-row cols-3"><div class="form-group"><label>Name</label><input type="text" id="prc-name-0" value="Basic Salary"></div><div class="form-group"><label>Type</label><select id="prc-type-0"><option value="earnings">Earnings</option><option value="deductions">Deductions</option></select></div><div class="form-group"><label>Amount</label><input type="number" step="0.01" id="prc-amt-0"></div></div>
             </div>
-            <button type="button" class="btn btn-ghost btn-sm" onclick="addPayrollComponent()" style="margin-top:8px">+ Add Component</button>
-        </form>`, `<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="createPayroll()">Create</button>`);
+            <button type="button" class="btn btn-ghost btn-sm" onclick="addPayrollComponent()" style="margin-top:8px"><i class="fa-solid fa-plus"></i> Add Component</button>
+        </form>`, `<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="createPayroll()"><i class="fa-solid fa-check"></i> Create</button>`);
     window._prCompCount = 1;
 }
-
 function addPayrollComponent() {
     const i = window._prCompCount++;
     const div = document.createElement('div'); div.className = 'form-row cols-3';
     div.innerHTML = `<div class="form-group"><label>Name</label><input type="text" id="prc-name-${i}"></div><div class="form-group"><label>Type</label><select id="prc-type-${i}"><option value="earnings">Earnings</option><option value="deductions">Deductions</option></select></div><div class="form-group"><label>Amount</label><input type="number" step="0.01" id="prc-amt-${i}"></div>`;
     document.getElementById('pr-components').appendChild(div);
 }
-
 async function createPayroll() {
     const components = [];
-    for (let i = 0; i < window._prCompCount; i++) {
-        const name = document.getElementById(`prc-name-${i}`);
-        if (!name || !name.value) continue;
-        components.push({ component_name: name.value, component_type: document.getElementById(`prc-type-${i}`).value, amount: document.getElementById(`prc-amt-${i}`).value });
-    }
+    for (let i = 0; i < window._prCompCount; i++) { const name = document.getElementById(`prc-name-${i}`); if (!name || !name.value) continue; components.push({ component_name: name.value, component_type: document.getElementById(`prc-type-${i}`).value, amount: document.getElementById(`prc-amt-${i}`).value }); }
     try {
-        await api('/hr/payrolls', { method: 'POST', body: JSON.stringify({
-            employee_id: parseInt(document.getElementById('pr-emp').value),
-            pay_period_start: document.getElementById('pr-start').value,
-            pay_period_end: document.getElementById('pr-end').value, components
-        })});
+        await api('/hr/payrolls', { method: 'POST', body: JSON.stringify({ employee_id: parseInt(document.getElementById('pr-emp').value), pay_period_start: document.getElementById('pr-start').value, pay_period_end: document.getElementById('pr-end').value, components }) });
         closeModal(); showAlert('Payroll created', 'success'); renderPayroll();
     } catch (err) { showAlert(err.message, 'error'); }
 }
 
-// === 21. Inventory Items ===
+// === 21-25. Inventory ===
 async function renderItems() {
     showLoading();
     try {
         const items = await api('/inventory/items');
         document.getElementById('main-content').innerHTML = `<div class="fade-up">
-        <div class="card"><div class="card-header"><h3>Inventory Items</h3><div class="card-actions"><button class="btn btn-primary btn-sm" onclick="showCreateItemModal()">+ Add Item</button></div></div>
+        <div class="card"><div class="card-header"><h3><i class="fa-solid fa-boxes-stacked" style="color:var(--accent);opacity:0.7"></i> Inventory Items</h3><div class="card-actions"><button class="btn btn-primary btn-sm" onclick="showCreateItemModal()"><i class="fa-solid fa-plus"></i> Add Item</button></div></div>
         <div class="card-body flush"><div class="table-wrap"><table class="tbl"><thead><tr><th>Code</th><th>Name</th><th>Category</th><th class="text-right">Unit Price</th><th class="text-right">Stock</th><th class="text-right">Value</th><th>Reorder</th></tr></thead>
-        <tbody>${items.map(i => `<tr><td class="cell-primary mono">${esc(i.code)}</td><td>${esc(i.name)}</td><td>${esc(i.category_name || '—')}</td><td class="text-right mono">${fmtCur(i.unit_price)}</td><td class="text-right">${parseFloat(i.current_stock)}</td><td class="text-right mono">${fmtCur(i.stock_value)}</td><td>${parseFloat(i.current_stock) <= parseFloat(i.reorder_level || 0) ? '<span class="badge badge-danger">Low</span>' : '<span class="badge badge-success">OK</span>'}</td></tr>`).join('')}</tbody></table></div></div></div></div>`;
+        <tbody>${items.map(i => `<tr><td class="cell-primary mono">${esc(i.code)}</td><td>${esc(i.name)}</td><td>${esc(i.category_name || '—')}</td><td class="text-right mono">${fmtCur(i.unit_price)}</td><td class="text-right">${parseFloat(i.current_stock)}</td><td class="text-right mono">${fmtCur(i.stock_value)}</td><td>${parseFloat(i.current_stock) <= parseFloat(i.reorder_level || 0) ? '<span class="badge badge-danger"><i class="fa-solid fa-arrow-down" style="font-size:8px"></i> Low</span>' : '<span class="badge badge-success"><i class="fa-solid fa-check" style="font-size:8px"></i> OK</span>'}</td></tr>`).join('')}</tbody></table></div></div></div></div>`;
     } catch (err) { showAlert(err.message, 'error'); }
 }
-
 function showCreateItemModal() {
-    showModal('New Item', `
-        <form><div class="form-row"><div class="form-group"><label>Code <span class="req">*</span></label><input type="text" id="item-code" required></div>
-        <div class="form-group"><label>Name <span class="req">*</span></label><input type="text" id="item-name" required></div></div>
-        <div class="form-row"><div class="form-group"><label>Category ID</label><input type="number" id="item-cat"></div>
-        <div class="form-group"><label>Unit Price <span class="req">*</span></label><input type="number" step="0.01" id="item-price" required></div></div>
-        <div class="form-row"><div class="form-group"><label>Unit</label><input type="text" id="item-unit" value="pcs"></div>
-        <div class="form-group"><label>Reorder Level</label><input type="number" id="item-reorder" value="10"></div></div></form>`,
-    `<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="createItem()">Create</button>`);
+    showModal('New Item', `<form><div class="form-row"><div class="form-group"><label>Code <span class="req">*</span></label><input type="text" id="item-code" required></div><div class="form-group"><label>Name <span class="req">*</span></label><input type="text" id="item-name" required></div></div><div class="form-row"><div class="form-group"><label>Category ID</label><input type="number" id="item-cat"></div><div class="form-group"><label>Unit Price <span class="req">*</span></label><input type="number" step="0.01" id="item-price" required></div></div><div class="form-row"><div class="form-group"><label>Unit</label><input type="text" id="item-unit" value="pcs"></div><div class="form-group"><label>Reorder Level</label><input type="number" id="item-reorder" value="10"></div></div></form>`,
+    `<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="createItem()"><i class="fa-solid fa-check"></i> Create</button>`);
 }
-
 async function createItem() {
-    try {
-        await api('/inventory/items', { method: 'POST', body: JSON.stringify({
-            code: document.getElementById('item-code').value, name: document.getElementById('item-name').value,
-            category_id: parseInt(document.getElementById('item-cat').value) || null,
-            unit_price: document.getElementById('item-price').value, unit: document.getElementById('item-unit').value || 'pcs',
-            reorder_level: parseInt(document.getElementById('item-reorder').value) || 10
-        })});
-        closeModal(); showAlert('Item created', 'success'); renderItems();
-    } catch (err) { showAlert(err.message, 'error'); }
+    try { await api('/inventory/items', { method: 'POST', body: JSON.stringify({ code: document.getElementById('item-code').value, name: document.getElementById('item-name').value, category_id: parseInt(document.getElementById('item-cat').value) || null, unit_price: document.getElementById('item-price').value, unit: document.getElementById('item-unit').value || 'pcs', reorder_level: parseInt(document.getElementById('item-reorder').value) || 10 }) }); closeModal(); showAlert('Item created', 'success'); renderItems(); } catch (err) { showAlert(err.message, 'error'); }
 }
 
-// === 22. Categories ===
 async function renderCategories() {
     showLoading();
     try {
         const cats = await api('/inventory/categories');
-        document.getElementById('main-content').innerHTML = `<div class="fade-up">
-        <div class="card"><div class="card-header"><h3>Item Categories</h3><div class="card-actions"><button class="btn btn-primary btn-sm" onclick="showCreateCatModal()">+ Add</button></div></div>
-        <div class="card-body flush"><div class="table-wrap"><table class="tbl"><thead><tr><th>Name</th><th>Description</th></tr></thead>
-        <tbody>${cats.map(c => `<tr><td class="cell-primary">${esc(c.name)}</td><td class="text-muted">${esc(c.description || '—')}</td></tr>`).join('')}</tbody></table></div></div></div></div>`;
+        document.getElementById('main-content').innerHTML = `<div class="fade-up"><div class="card"><div class="card-header"><h3><i class="fa-solid fa-tags" style="color:var(--accent);opacity:0.7"></i> Item Categories</h3><div class="card-actions"><button class="btn btn-primary btn-sm" onclick="showCreateCatModal()"><i class="fa-solid fa-plus"></i> Add</button></div></div><div class="card-body flush"><div class="table-wrap"><table class="tbl"><thead><tr><th>Name</th><th>Description</th></tr></thead><tbody>${cats.map(c => `<tr><td class="cell-primary">${esc(c.name)}</td><td class="text-muted">${esc(c.description || '—')}</td></tr>`).join('')}</tbody></table></div></div></div></div>`;
     } catch (err) { showAlert(err.message, 'error'); }
 }
+function showCreateCatModal() { showModal('New Category', `<form><div class="form-group"><label>Name <span class="req">*</span></label><input type="text" id="cat-name" required></div><div class="form-group"><label>Description</label><textarea id="cat-desc" rows="2"></textarea></div></form>`, `<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="createCat()"><i class="fa-solid fa-check"></i> Create</button>`); }
+async function createCat() { try { await api('/inventory/categories', { method: 'POST', body: JSON.stringify({ name: document.getElementById('cat-name').value, description: document.getElementById('cat-desc').value || null }) }); closeModal(); showAlert('Category created', 'success'); renderCategories(); } catch (err) { showAlert(err.message, 'error'); } }
 
-function showCreateCatModal() {
-    showModal('New Category', `<form><div class="form-group"><label>Name <span class="req">*</span></label><input type="text" id="cat-name" required></div><div class="form-group"><label>Description</label><textarea id="cat-desc" rows="2"></textarea></div></form>`,
-    `<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="createCat()">Create</button>`);
-}
-
-async function createCat() {
-    try {
-        await api('/inventory/categories', { method: 'POST', body: JSON.stringify({ name: document.getElementById('cat-name').value, description: document.getElementById('cat-desc').value || null }) });
-        closeModal(); showAlert('Category created', 'success'); renderCategories();
-    } catch (err) { showAlert(err.message, 'error'); }
-}
-
-// === 23. Warehouses ===
 async function renderWarehouses() {
     showLoading();
     try {
         const whs = await api('/inventory/warehouses');
-        document.getElementById('main-content').innerHTML = `<div class="fade-up">
-        <div class="card"><div class="card-header"><h3>Warehouses</h3><div class="card-actions"><button class="btn btn-primary btn-sm" onclick="showCreateWhModal()">+ Add</button></div></div>
-        <div class="card-body flush"><div class="table-wrap"><table class="tbl"><thead><tr><th>Name</th><th>Location</th><th>Description</th></tr></thead>
-        <tbody>${whs.map(w => `<tr><td class="cell-primary">${esc(w.name)}</td><td>${esc(w.location || '—')}</td><td class="text-muted">${esc(w.description || '—')}</td></tr>`).join('')}</tbody></table></div></div></div></div>`;
+        document.getElementById('main-content').innerHTML = `<div class="fade-up"><div class="card"><div class="card-header"><h3><i class="fa-solid fa-warehouse" style="color:var(--accent);opacity:0.7"></i> Warehouses</h3><div class="card-actions"><button class="btn btn-primary btn-sm" onclick="showCreateWhModal()"><i class="fa-solid fa-plus"></i> Add</button></div></div><div class="card-body flush"><div class="table-wrap"><table class="tbl"><thead><tr><th>Name</th><th>Location</th><th>Description</th></tr></thead><tbody>${whs.map(w => `<tr><td class="cell-primary">${esc(w.name)}</td><td>${esc(w.location || '—')}</td><td class="text-muted">${esc(w.description || '—')}</td></tr>`).join('')}</tbody></table></div></div></div></div>`;
     } catch (err) { showAlert(err.message, 'error'); }
 }
+function showCreateWhModal() { showModal('New Warehouse', `<form><div class="form-group"><label>Name <span class="req">*</span></label><input type="text" id="wh-name" required></div><div class="form-group"><label>Location</label><input type="text" id="wh-loc"></div><div class="form-group"><label>Description</label><textarea id="wh-desc" rows="2"></textarea></div></form>`, `<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="createWh()"><i class="fa-solid fa-check"></i> Create</button>`); }
+async function createWh() { try { await api('/inventory/warehouses', { method: 'POST', body: JSON.stringify({ name: document.getElementById('wh-name').value, location: document.getElementById('wh-loc').value || null, description: document.getElementById('wh-desc').value || null }) }); closeModal(); showAlert('Warehouse created', 'success'); renderWarehouses(); } catch (err) { showAlert(err.message, 'error'); } }
 
-function showCreateWhModal() {
-    showModal('New Warehouse', `<form><div class="form-group"><label>Name <span class="req">*</span></label><input type="text" id="wh-name" required></div><div class="form-group"><label>Location</label><input type="text" id="wh-loc"></div><div class="form-group"><label>Description</label><textarea id="wh-desc" rows="2"></textarea></div></form>`,
-    `<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="createWh()">Create</button>`);
-}
-
-async function createWh() {
-    try {
-        await api('/inventory/warehouses', { method: 'POST', body: JSON.stringify({ name: document.getElementById('wh-name').value, location: document.getElementById('wh-loc').value || null, description: document.getElementById('wh-desc').value || null }) });
-        closeModal(); showAlert('Warehouse created', 'success'); renderWarehouses();
-    } catch (err) { showAlert(err.message, 'error'); }
-}
-
-// === 24. Stock Ledger ===
 async function renderStockLedger() {
     showLoading();
     try {
         const data = await api('/inventory/stock-ledger');
         const entries = Array.isArray(data) ? data : (data.entries || []);
-        document.getElementById('main-content').innerHTML = `<div class="fade-up">
-        <div class="card"><div class="card-header"><h3>Stock Ledger</h3></div>
-        <div class="card-body flush"><div class="table-wrap"><table class="tbl"><thead><tr><th>Date</th><th>Item</th><th>Type</th><th class="text-right">Qty</th><th>Warehouse</th><th>Reference</th></tr></thead>
-        <tbody>${entries.length ? entries.map(e => `<tr><td>${fmtDate(e.created_at || e.date)}</td><td class="cell-primary">${esc(e.item_name || 'Item #' + e.item_id)}</td><td><span class="badge-flat ${e.transaction_type === 'in' || e.transaction_type === 'increase' ? 'green' : 'red'}">${e.transaction_type}</span></td><td class="text-right">${e.quantity}</td><td>${esc(e.warehouse_name || '—')}</td><td class="text-muted">${esc(e.reference || '—')}</td></tr>`).join('') : '<tr><td colspan="6" class="text-center text-muted" style="padding:24px">No stock movements yet</td></tr>'}</tbody></table></div></div></div></div>`;
+        document.getElementById('main-content').innerHTML = `<div class="fade-up"><div class="card"><div class="card-header"><h3><i class="fa-solid fa-clipboard-list" style="color:var(--accent);opacity:0.7"></i> Stock Ledger</h3></div><div class="card-body flush"><div class="table-wrap"><table class="tbl"><thead><tr><th>Date</th><th>Item</th><th>Type</th><th class="text-right">Qty</th><th>Warehouse</th><th>Reference</th></tr></thead><tbody>${entries.length ? entries.map(e => `<tr><td>${fmtDate(e.created_at || e.date)}</td><td class="cell-primary">${esc(e.item_name || 'Item #' + e.item_id)}</td><td><span class="badge-flat ${e.transaction_type === 'in' || e.transaction_type === 'increase' ? 'green' : 'red'}">${e.transaction_type}</span></td><td class="text-right">${e.quantity}</td><td>${esc(e.warehouse_name || '—')}</td><td class="text-muted">${esc(e.reference || '—')}</td></tr>`).join('') : '<tr><td colspan="6" class="text-center text-muted" style="padding:32px">No stock movements yet</td></tr>'}</tbody></table></div></div></div></div>`;
     } catch (err) { showAlert(err.message, 'error'); }
 }
 
-// === 25. Inventory Adjustments ===
 async function renderInventoryAdjustments() {
     showLoading();
     try {
         const items = await api('/inventory/items');
         const whs = await api('/inventory/warehouses');
-        document.getElementById('main-content').innerHTML = `<div class="fade-up">
-        <div class="card"><div class="card-header"><h3>Inventory Adjustments</h3></div>
-        <div class="card-body">
-            <form id="form-adj">
-                <div class="form-row cols-4">
-                    <div class="form-group"><label>Item</label><select id="adj-item">${items.map(i => `<option value="${i.id}">${esc(i.code)} — ${esc(i.name)}</option>`).join('')}</select></div>
-                    <div class="form-group"><label>Warehouse</label><select id="adj-wh">${whs.map(w => `<option value="${w.id}">${esc(w.name)}</option>`).join('')}</select></div>
-                    <div class="form-group"><label>Type</label><select id="adj-type"><option value="increase">Increase</option><option value="decrease">Decrease</option></select></div>
-                    <div class="form-group"><label>Quantity</label><input type="number" id="adj-qty" required></div>
-                </div>
-                <div class="form-group"><label>Reason</label><input type="text" id="adj-reason"></div>
-                <button type="button" class="btn btn-primary" onclick="createAdjustment()">Submit Adjustment</button>
-            </form>
-        </div></div></div>`;
+        document.getElementById('main-content').innerHTML = `<div class="fade-up"><div class="card"><div class="card-header"><h3><i class="fa-solid fa-arrows-rotate" style="color:var(--accent);opacity:0.7"></i> Inventory Adjustments</h3></div><div class="card-body">
+            <form id="form-adj"><div class="form-row cols-4"><div class="form-group"><label>Item</label><select id="adj-item">${items.map(i => `<option value="${i.id}">${esc(i.code)} — ${esc(i.name)}</option>`).join('')}</select></div><div class="form-group"><label>Warehouse</label><select id="adj-wh">${whs.map(w => `<option value="${w.id}">${esc(w.name)}</option>`).join('')}</select></div><div class="form-group"><label>Type</label><select id="adj-type"><option value="increase">Increase</option><option value="decrease">Decrease</option></select></div><div class="form-group"><label>Quantity</label><input type="number" id="adj-qty" required></div></div>
+            <div class="form-group"><label>Reason</label><input type="text" id="adj-reason"></div>
+            <button type="button" class="btn btn-primary" onclick="createAdjustment()"><i class="fa-solid fa-check"></i> Submit Adjustment</button></form></div></div></div>`;
     } catch (err) { showAlert(err.message, 'error'); }
 }
-
 async function createAdjustment() {
-    try {
-        await api('/inventory/adjustments', { method: 'POST', body: JSON.stringify({
-            item_id: parseInt(document.getElementById('adj-item').value), warehouse_id: parseInt(document.getElementById('adj-wh').value),
-            adjustment_type: document.getElementById('adj-type').value, quantity: document.getElementById('adj-qty').value,
-            reason: document.getElementById('adj-reason').value || null
-        })});
-        showAlert('Adjustment applied', 'success'); renderInventoryAdjustments();
-    } catch (err) { showAlert(err.message, 'error'); }
+    try { await api('/inventory/adjustments', { method: 'POST', body: JSON.stringify({ item_id: parseInt(document.getElementById('adj-item').value), warehouse_id: parseInt(document.getElementById('adj-wh').value), adjustment_type: document.getElementById('adj-type').value, quantity: document.getElementById('adj-qty').value, reason: document.getElementById('adj-reason').value || null }) }); showAlert('Adjustment applied', 'success'); renderInventoryAdjustments(); } catch (err) { showAlert(err.message, 'error'); }
 }
 
 // === 26. Purchase Orders ===
@@ -786,75 +718,36 @@ async function renderPurchaseOrders() {
     showLoading();
     try {
         const pos = await api('/procurement/purchase-orders');
-        document.getElementById('main-content').innerHTML = `<div class="fade-up">
-        <div class="card"><div class="card-header"><h3>Purchase Orders</h3><div class="card-actions"><button class="btn btn-primary btn-sm" onclick="showCreatePOModal()">+ New PO</button></div></div>
+        document.getElementById('main-content').innerHTML = `<div class="fade-up"><div class="card"><div class="card-header"><h3><i class="fa-solid fa-file-invoice" style="color:var(--accent);opacity:0.7"></i> Purchase Orders</h3><div class="card-actions"><button class="btn btn-primary btn-sm" onclick="showCreatePOModal()"><i class="fa-solid fa-plus"></i> New PO</button></div></div>
         <div class="card-body flush"><div class="table-wrap"><table class="tbl"><thead><tr><th>PO #</th><th>Supplier</th><th>Date</th><th class="text-right">Total</th><th>Status</th><th></th></tr></thead>
         <tbody>${pos.map(po => `<tr><td class="cell-primary">${esc(po.po_number)}</td><td>${esc(po.supplier_name || 'Supplier #' + po.supplier_id)}</td><td>${fmtDate(po.order_date)}</td><td class="text-right mono">${fmtCur(po.total_amount)}</td><td>${statusBadge(po.status)}</td>
-        <td><div class="tbl-actions"><button class="btn-icon" onclick="viewPO(${po.id})" title="View">⊙</button>${po.status === 'draft' ? `<button class="btn-icon" onclick="approvePO(${po.id})" title="Approve">✓</button>` : ''}${po.status === 'approved' ? `<button class="btn-icon" onclick="receivePO(${po.id})" title="Receive">↓</button>` : ''}</div></td></tr>`).join('')}</tbody></table></div></div></div></div>`;
+        <td><div class="tbl-actions"><button class="btn-icon" onclick="viewPO(${po.id})" title="View"><i class="fa-solid fa-eye"></i></button>${po.status === 'draft' ? `<button class="btn-icon" onclick="approvePO(${po.id})" title="Approve"><i class="fa-solid fa-check"></i></button>` : ''}${po.status === 'approved' ? `<button class="btn-icon" onclick="receivePO(${po.id})" title="Receive"><i class="fa-solid fa-arrow-down"></i></button>` : ''}</div></td></tr>`).join('')}</tbody></table></div></div></div></div>`;
     } catch (err) { showAlert(err.message, 'error'); }
 }
-
 async function viewPO(id) {
     try {
         const po = await api(`/procurement/purchase-orders/${id}`);
         showModalLg(`Purchase Order — ${po.po_number}`, `
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
-                <div><span class="text-muted" style="font-size:0.75rem">Supplier</span><div style="font-weight:600">${esc(po.supplier_name || '')}</div></div>
-                <div><span class="text-muted" style="font-size:0.75rem">Status</span><div>${statusBadge(po.status)}</div></div>
-            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px"><div><span class="text-muted" style="font-size:0.75rem">Supplier</span><div style="font-weight:600">${esc(po.supplier_name || '')}</div></div><div><span class="text-muted" style="font-size:0.75rem">Status</span><div>${statusBadge(po.status)}</div></div></div>
             <table class="tbl"><thead><tr><th>Item</th><th class="text-right">Qty</th><th class="text-right">Unit Price</th><th class="text-right">Total</th></tr></thead>
             <tbody>${(po.items || []).map(i => `<tr><td class="cell-primary">${esc(i.item_name || 'Item #' + i.item_id)}</td><td class="text-right">${i.quantity}</td><td class="text-right mono">${fmtCur(i.unit_price)}</td><td class="text-right mono">${fmtCur(i.total_price || parseFloat(i.quantity) * parseFloat(i.unit_price))}</td></tr>`).join('')}</tbody>
             <tfoot><tr><td colspan="3" class="cell-primary">Total</td><td class="text-right mono">${fmtCur(po.total_amount)}</td></tr></tfoot></table>`);
     } catch (err) { showAlert(err.message, 'error'); }
 }
-
 async function approvePO(id) { try { await api(`/procurement/purchase-orders/${id}/approve`, { method: 'POST' }); showAlert('PO approved', 'success'); renderPurchaseOrders(); } catch (err) { showAlert(err.message, 'error'); } }
-
 async function receivePO(id) {
-    try {
-        const whs = await api('/inventory/warehouses');
-        if (!whs.length) { showAlert('No warehouses available', 'warning'); return; }
-        await api(`/procurement/purchase-orders/${id}/receive?warehouse_id=${whs[0].id}`, { method: 'POST' });
-        showAlert('PO received & inventory updated', 'success'); renderPurchaseOrders();
-    } catch (err) { showAlert(err.message, 'error'); }
+    try { const whs = await api('/inventory/warehouses'); if (!whs.length) { showAlert('No warehouses available', 'warning'); return; } await api(`/procurement/purchase-orders/${id}/receive?warehouse_id=${whs[0].id}`, { method: 'POST' }); showAlert('PO received & inventory updated', 'success'); renderPurchaseOrders(); } catch (err) { showAlert(err.message, 'error'); }
 }
-
 function showCreatePOModal() {
-    showModalLg('New Purchase Order', `
-        <form id="form-po">
-            <div class="form-row"><div class="form-group"><label>Supplier ID <span class="req">*</span></label><input type="number" id="po-supplier" required></div>
-            <div class="form-group"><label>Order Date</label><input type="date" id="po-date" required></div></div>
-            <div class="form-group"><label>Expected Delivery</label><input type="date" id="po-delivery"></div>
-            <h4 style="margin:16px 0 8px;font-size:0.8125rem">Items</h4>
-            <div id="po-items">
-                <div class="form-row cols-3"><div class="form-group"><label>Item ID</label><input type="number" id="poi-id-0"></div><div class="form-group"><label>Quantity</label><input type="number" id="poi-qty-0"></div><div class="form-group"><label>Unit Price</label><input type="number" step="0.01" id="poi-price-0"></div></div>
-            </div>
-            <button type="button" class="btn btn-ghost btn-sm" onclick="addPOItem()" style="margin-top:8px">+ Add Item</button>
-        </form>`, `<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="createPO()">Create PO</button>`);
+    showModalLg('New Purchase Order', `<form id="form-po"><div class="form-row"><div class="form-group"><label>Supplier ID <span class="req">*</span></label><input type="number" id="po-supplier" required></div><div class="form-group"><label>Order Date</label><input type="date" id="po-date" required></div></div><div class="form-group"><label>Expected Delivery</label><input type="date" id="po-delivery"></div>
+        <h4 style="margin:16px 0 8px;font-size:0.8125rem"><i class="fa-solid fa-list" style="margin-right:4px;opacity:0.5"></i> Items</h4><div id="po-items"><div class="form-row cols-3"><div class="form-group"><label>Item ID</label><input type="number" id="poi-id-0"></div><div class="form-group"><label>Quantity</label><input type="number" id="poi-qty-0"></div><div class="form-group"><label>Unit Price</label><input type="number" step="0.01" id="poi-price-0"></div></div></div>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="addPOItem()" style="margin-top:8px"><i class="fa-solid fa-plus"></i> Add Item</button></form>`, `<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="createPO()"><i class="fa-solid fa-check"></i> Create PO</button>`);
     window._poItemCount = 1;
 }
-
-function addPOItem() {
-    const i = window._poItemCount++;
-    const div = document.createElement('div'); div.className = 'form-row cols-3';
-    div.innerHTML = `<div class="form-group"><label>Item ID</label><input type="number" id="poi-id-${i}"></div><div class="form-group"><label>Quantity</label><input type="number" id="poi-qty-${i}"></div><div class="form-group"><label>Unit Price</label><input type="number" step="0.01" id="poi-price-${i}"></div>`;
-    document.getElementById('po-items').appendChild(div);
-}
-
+function addPOItem() { const i = window._poItemCount++; const div = document.createElement('div'); div.className = 'form-row cols-3'; div.innerHTML = `<div class="form-group"><label>Item ID</label><input type="number" id="poi-id-${i}"></div><div class="form-group"><label>Quantity</label><input type="number" id="poi-qty-${i}"></div><div class="form-group"><label>Unit Price</label><input type="number" step="0.01" id="poi-price-${i}"></div>`; document.getElementById('po-items').appendChild(div); }
 async function createPO() {
-    const items = [];
-    for (let i = 0; i < window._poItemCount; i++) {
-        const id = document.getElementById(`poi-id-${i}`);
-        if (!id || !id.value) continue;
-        items.push({ item_id: parseInt(id.value), quantity: document.getElementById(`poi-qty-${i}`).value, unit_price: document.getElementById(`poi-price-${i}`).value });
-    }
-    try {
-        await api('/procurement/purchase-orders', { method: 'POST', body: JSON.stringify({
-            supplier_id: parseInt(document.getElementById('po-supplier').value), order_date: document.getElementById('po-date').value,
-            expected_delivery_date: document.getElementById('po-delivery').value || null, items
-        })});
-        closeModal(); showAlert('Purchase order created', 'success'); renderPurchaseOrders();
-    } catch (err) { showAlert(err.message, 'error'); }
+    const items = []; for (let i = 0; i < window._poItemCount; i++) { const id = document.getElementById(`poi-id-${i}`); if (!id || !id.value) continue; items.push({ item_id: parseInt(id.value), quantity: document.getElementById(`poi-qty-${i}`).value, unit_price: document.getElementById(`poi-price-${i}`).value }); }
+    try { await api('/procurement/purchase-orders', { method: 'POST', body: JSON.stringify({ supplier_id: parseInt(document.getElementById('po-supplier').value), order_date: document.getElementById('po-date').value, expected_delivery_date: document.getElementById('po-delivery').value || null, items }) }); closeModal(); showAlert('Purchase order created', 'success'); renderPurchaseOrders(); } catch (err) { showAlert(err.message, 'error'); }
 }
 
 // === 27. Suppliers ===
@@ -862,30 +755,16 @@ async function renderSuppliers() {
     showLoading();
     try {
         const sups = await api('/procurement/suppliers');
-        document.getElementById('main-content').innerHTML = `<div class="fade-up">
-        <div class="card"><div class="card-header"><h3>Suppliers</h3><div class="card-actions"><button class="btn btn-primary btn-sm" onclick="showCreateSupplierModal()">+ Add</button></div></div>
-        <div class="card-body flush"><div class="table-wrap"><table class="tbl"><thead><tr><th>Name</th><th>Contact</th><th>Email</th><th>Phone</th></tr></thead>
-        <tbody>${sups.map(s => `<tr><td class="cell-primary">${esc(s.name)}</td><td>${esc(s.contact_person || '—')}</td><td>${esc(s.email || '—')}</td><td>${esc(s.phone || '—')}</td></tr>`).join('')}</tbody></table></div></div></div></div>`;
+        document.getElementById('main-content').innerHTML = `<div class="fade-up"><div class="card"><div class="card-header"><h3><i class="fa-solid fa-truck-field" style="color:var(--accent);opacity:0.7"></i> Suppliers</h3><div class="card-actions"><button class="btn btn-primary btn-sm" onclick="showCreateSupplierModal()"><i class="fa-solid fa-plus"></i> Add</button></div></div>
+        <div class="card-body flush"><div class="table-wrap"><table class="tbl"><thead><tr><th>Name</th><th>Contact</th><th>Email</th><th>Phone</th></tr></thead><tbody>${sups.map(s => `<tr><td class="cell-primary">${esc(s.name)}</td><td>${esc(s.contact_person || '—')}</td><td>${esc(s.email || '—')}</td><td>${esc(s.phone || '—')}</td></tr>`).join('')}</tbody></table></div></div></div></div>`;
     } catch (err) { showAlert(err.message, 'error'); }
 }
-
 function showCreateSupplierModal() {
-    showModal('New Supplier', `
-        <form><div class="form-group"><label>Name <span class="req">*</span></label><input type="text" id="sup-name" required></div>
-        <div class="form-row"><div class="form-group"><label>Contact Person</label><input type="text" id="sup-contact"></div><div class="form-group"><label>Email</label><input type="email" id="sup-email"></div></div>
-        <div class="form-row"><div class="form-group"><label>Phone</label><input type="text" id="sup-phone"></div><div class="form-group"><label>Address</label><input type="text" id="sup-addr"></div></div></form>`,
-    `<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="createSupplier()">Create</button>`);
+    showModal('New Supplier', `<form><div class="form-group"><label>Name <span class="req">*</span></label><input type="text" id="sup-name" required></div><div class="form-row"><div class="form-group"><label>Contact Person</label><input type="text" id="sup-contact"></div><div class="form-group"><label>Email</label><input type="email" id="sup-email"></div></div><div class="form-row"><div class="form-group"><label>Phone</label><input type="text" id="sup-phone"></div><div class="form-group"><label>Address</label><input type="text" id="sup-addr"></div></div></form>`,
+    `<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="createSupplier()"><i class="fa-solid fa-check"></i> Create</button>`);
 }
-
 async function createSupplier() {
-    try {
-        await api('/procurement/suppliers', { method: 'POST', body: JSON.stringify({
-            name: document.getElementById('sup-name').value, contact_person: document.getElementById('sup-contact').value || null,
-            email: document.getElementById('sup-email').value || null, phone: document.getElementById('sup-phone').value || null,
-            address: document.getElementById('sup-addr').value || null
-        })});
-        closeModal(); showAlert('Supplier created', 'success'); renderSuppliers();
-    } catch (err) { showAlert(err.message, 'error'); }
+    try { await api('/procurement/suppliers', { method: 'POST', body: JSON.stringify({ name: document.getElementById('sup-name').value, contact_person: document.getElementById('sup-contact').value || null, email: document.getElementById('sup-email').value || null, phone: document.getElementById('sup-phone').value || null, address: document.getElementById('sup-addr').value || null }) }); closeModal(); showAlert('Supplier created', 'success'); renderSuppliers(); } catch (err) { showAlert(err.message, 'error'); }
 }
 
 // === 28. Users ===
@@ -893,39 +772,24 @@ async function renderUsers() {
     showLoading();
     try {
         const users = await api('/auth/users');
-        document.getElementById('main-content').innerHTML = `<div class="fade-up">
-        <div class="card"><div class="card-header"><h3>User Management</h3><div class="card-actions"><button class="btn btn-primary btn-sm" onclick="showCreateUserModal()">+ Add User</button></div></div>
+        document.getElementById('main-content').innerHTML = `<div class="fade-up"><div class="card"><div class="card-header"><h3><i class="fa-solid fa-user-gear" style="color:var(--accent);opacity:0.7"></i> User Management</h3><div class="card-actions"><button class="btn btn-primary btn-sm" onclick="showCreateUserModal()"><i class="fa-solid fa-plus"></i> Add User</button></div></div>
         <div class="card-body flush"><div class="table-wrap"><table class="tbl"><thead><tr><th>Username</th><th>Role</th><th>Status</th><th></th></tr></thead>
         <tbody>${users.map(u => `<tr><td class="cell-primary">${esc(u.username)}</td><td><span class="badge badge-primary">${esc(u.role)}</span></td><td>${u.is_active ? '<span class="badge badge-success">Active</span>' : '<span class="badge badge-neutral">Inactive</span>'}</td>
-        <td><div class="tbl-actions"><button class="btn-icon" onclick="showEditUserModal(${u.id}, '${esc(u.username)}', '${esc(u.role)}', ${u.is_active})" title="Edit">✎</button></div></td></tr>`).join('')}</tbody></table></div></div></div></div>`;
+        <td><div class="tbl-actions"><button class="btn-icon" onclick="showEditUserModal(${u.id}, '${esc(u.username)}', '${esc(u.role)}', ${u.is_active})" title="Edit"><i class="fa-solid fa-pen"></i></button></div></td></tr>`).join('')}</tbody></table></div></div></div></div>`;
     } catch (err) { showAlert(err.message, 'error'); }
 }
-
 function showCreateUserModal() {
-    showModal('New User', `<form><div class="form-group"><label>Username <span class="req">*</span></label><input type="text" id="user-name" required></div>
-        <div class="form-group"><label>Password <span class="req">*</span></label><input type="password" id="user-pass" required></div>
-        <div class="form-group"><label>Role <span class="req">*</span></label><select id="user-role"><option value="admin">Admin</option><option value="accountant">Accountant</option><option value="hr_manager">HR Manager</option><option value="inventory_manager">Inventory Manager</option></select></div></form>`,
-    `<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="createUser()">Create</button>`);
+    showModal('New User', `<form><div class="form-group"><label>Username <span class="req">*</span></label><input type="text" id="user-name" required></div><div class="form-group"><label>Password <span class="req">*</span></label><input type="password" id="user-pass" required></div><div class="form-group"><label>Role <span class="req">*</span></label><select id="user-role"><option value="admin">Admin</option><option value="accountant">Accountant</option><option value="hr_manager">HR Manager</option><option value="inventory_manager">Inventory Manager</option></select></div></form>`,
+    `<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="createUser()"><i class="fa-solid fa-check"></i> Create</button>`);
 }
-
-async function createUser() {
-    try {
-        await api('/auth/users', { method: 'POST', body: JSON.stringify({ username: document.getElementById('user-name').value, password: document.getElementById('user-pass').value, role: document.getElementById('user-role').value }) });
-        closeModal(); showAlert('User created', 'success'); renderUsers();
-    } catch (err) { showAlert(err.message, 'error'); }
-}
-
+async function createUser() { try { await api('/auth/users', { method: 'POST', body: JSON.stringify({ username: document.getElementById('user-name').value, password: document.getElementById('user-pass').value, role: document.getElementById('user-role').value }) }); closeModal(); showAlert('User created', 'success'); renderUsers(); } catch (err) { showAlert(err.message, 'error'); } }
 function showEditUserModal(id, username, role, isActive) {
-    showModal('Edit User', `<form><div class="form-group"><label>Username</label><input type="text" id="eu-name" value="${username}"></div>
-        <div class="form-group"><label>New Password (leave blank to keep)</label><input type="password" id="eu-pass"></div>
-        <div class="form-group"><label>Role</label><select id="eu-role"><option value="admin" ${role === 'admin' ? 'selected' : ''}>Admin</option><option value="accountant" ${role === 'accountant' ? 'selected' : ''}>Accountant</option><option value="hr_manager" ${role === 'hr_manager' ? 'selected' : ''}>HR Manager</option><option value="inventory_manager" ${role === 'inventory_manager' ? 'selected' : ''}>Inventory Manager</option></select></div></form>`,
-    `<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="updateUser(${id})">Save</button>`);
+    showModal('Edit User', `<form><div class="form-group"><label>Username</label><input type="text" id="eu-name" value="${username}"></div><div class="form-group"><label>New Password (leave blank to keep)</label><input type="password" id="eu-pass"></div><div class="form-group"><label>Role</label><select id="eu-role"><option value="admin" ${role === 'admin' ? 'selected' : ''}>Admin</option><option value="accountant" ${role === 'accountant' ? 'selected' : ''}>Accountant</option><option value="hr_manager" ${role === 'hr_manager' ? 'selected' : ''}>HR Manager</option><option value="inventory_manager" ${role === 'inventory_manager' ? 'selected' : ''}>Inventory Manager</option></select></div></form>`,
+    `<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="updateUser(${id})"><i class="fa-solid fa-check"></i> Save</button>`);
 }
-
 async function updateUser(id) {
     const data = { username: document.getElementById('eu-name').value, role: document.getElementById('eu-role').value };
-    const pw = document.getElementById('eu-pass').value;
-    if (pw) data.password = pw;
+    const pw = document.getElementById('eu-pass').value; if (pw) data.password = pw;
     try { await api(`/auth/users/${id}`, { method: 'PUT', body: JSON.stringify(data) }); closeModal(); showAlert('User updated', 'success'); renderUsers(); } catch (err) { showAlert(err.message, 'error'); }
 }
 
@@ -934,49 +798,42 @@ let assistantOpen = false;
 let assistantTab = 'chat';
 
 function initAssistant() {
-    // Create FAB
     if (document.getElementById('assistant-fab')) return;
     const fab = document.createElement('button');
-    fab.id = 'assistant-fab'; fab.className = 'assistant-fab'; fab.innerHTML = '✦'; fab.title = 'AI Assistant';
+    fab.id = 'assistant-fab'; fab.className = 'assistant-fab'; fab.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i>'; fab.title = 'AI Assistant';
     fab.addEventListener('click', toggleAssistant);
     document.body.appendChild(fab);
-
-    // Create panel
     const panel = document.createElement('div');
     panel.id = 'assistant-panel'; panel.className = 'assistant-panel';
     panel.innerHTML = `
-        <div class="assistant-header"><h4>✦ FinCore Assistant</h4><button class="close-btn" onclick="toggleAssistant()">×</button></div>
+        <div class="assistant-header"><h4><i class="fa-solid fa-wand-magic-sparkles" style="color:var(--accent)"></i> FinCore Assistant</h4><button class="close-btn" onclick="toggleAssistant()"><i class="fa-solid fa-xmark"></i></button></div>
         <div class="assistant-tabs">
-            <div class="assistant-tab active" data-tab="chat" onclick="switchAssistantTab('chat')">Chat</div>
-            <div class="assistant-tab" data-tab="insights" onclick="switchAssistantTab('insights')">Insights</div>
-            <div class="assistant-tab" data-tab="summary" onclick="switchAssistantTab('summary')">Summary</div>
+            <div class="assistant-tab active" data-tab="chat" onclick="switchAssistantTab('chat')"><i class="fa-solid fa-comments" style="margin-right:4px"></i> Chat</div>
+            <div class="assistant-tab" data-tab="insights" onclick="switchAssistantTab('insights')"><i class="fa-solid fa-lightbulb" style="margin-right:4px"></i> Insights</div>
+            <div class="assistant-tab" data-tab="summary" onclick="switchAssistantTab('summary')"><i class="fa-solid fa-chart-simple" style="margin-right:4px"></i> Summary</div>
         </div>
         <div class="assistant-body" id="assistant-body">
             <div class="chat-container" id="chat-container">
                 <div class="chat-welcome">
-                    <div class="welcome-icon">✦</div>
+                    <div class="welcome-icon"><i class="fa-solid fa-wand-magic-sparkles" style="color:var(--accent)"></i></div>
                     <h5>How can I help?</h5>
                     <p>Ask me about your finances, inventory, or operations.</p>
                     <div class="quick-actions">
-                        <button class="quick-action-btn" onclick="askAssistant('What is pending?')">What's pending?</button>
-                        <button class="quick-action-btn" onclick="askAssistant('How is revenue?')">Revenue status</button>
-                        <button class="quick-action-btn" onclick="askAssistant('Show anomalies')">Find anomalies</button>
+                        <button class="quick-action-btn" onclick="askAssistant('What is pending?')"><i class="fa-solid fa-clock" style="margin-right:4px"></i> What's pending?</button>
+                        <button class="quick-action-btn" onclick="askAssistant('How is revenue?')"><i class="fa-solid fa-chart-line" style="margin-right:4px"></i> Revenue status</button>
+                        <button class="quick-action-btn" onclick="askAssistant('Show anomalies')"><i class="fa-solid fa-magnifying-glass" style="margin-right:4px"></i> Find anomalies</button>
                     </div>
                 </div>
             </div>
         </div>
         <div class="assistant-input-area">
             <input type="text" id="assistant-input" placeholder="Ask anything…" onkeydown="if(event.key==='Enter')askAssistant()">
-            <button onclick="askAssistant()">Send</button>
+            <button onclick="askAssistant()"><i class="fa-solid fa-paper-plane"></i></button>
         </div>`;
     document.body.appendChild(panel);
 }
 
-function toggleAssistant() {
-    assistantOpen = !assistantOpen;
-    const panel = document.getElementById('assistant-panel');
-    if (panel) panel.classList.toggle('active', assistantOpen);
-}
+function toggleAssistant() { assistantOpen = !assistantOpen; const panel = document.getElementById('assistant-panel'); if (panel) panel.classList.toggle('active', assistantOpen); }
 
 function switchAssistantTab(tab) {
     assistantTab = tab;
@@ -986,48 +843,44 @@ function switchAssistantTab(tab) {
     else showChatView();
 }
 
-function showChatView() {
-    const body = document.getElementById('assistant-body');
-    const chatEl = document.getElementById('chat-container');
-    if (chatEl) body.innerHTML = chatEl.outerHTML;
-}
+function showChatView() { const body = document.getElementById('assistant-body'); const chatEl = document.getElementById('chat-container'); if (chatEl) body.innerHTML = chatEl.outerHTML; }
 
 async function loadInsights() {
     const body = document.getElementById('assistant-body');
-    body.innerHTML = '<div class="assistant-loading">Loading insights…</div>';
+    body.innerHTML = '<div class="assistant-loading"><div class="loading" style="padding:24px">Loading insights…</div></div>';
     try {
         const data = await api('/assistant/insights');
         const insights = data.insights || [];
         body.innerHTML = insights.length ? insights.map(i => {
             const type = (i.type || i.category || '').toLowerCase();
             const cls = type.includes('warning') || type.includes('risk') ? 'warning' : type.includes('success') || type.includes('positive') ? 'success' : 'info';
-            const icon = cls === 'warning' ? '⚠' : cls === 'success' ? '✓' : 'ℹ';
-            return `<div class="insight-item ${cls}"><span class="icon">${icon}</span><div><div>${esc(i.message || i.insight)}</div>${i.action ? `<div class="insight-action">${esc(i.action)}</div>` : ''}</div></div>`;
-        }).join('') : '<div class="assistant-empty"><div class="icon">✓</div><p>No insights — everything looks good!</p></div>';
+            const icon = cls === 'warning' ? 'fa-triangle-exclamation' : cls === 'success' ? 'fa-circle-check' : 'fa-circle-info';
+            return `<div class="insight-item ${cls}"><span class="icon"><i class="fa-solid ${icon}"></i></span><div><div>${esc(i.message || i.insight)}</div>${i.action ? `<div class="insight-action">${esc(i.action)}</div>` : ''}</div></div>`;
+        }).join('') : '<div class="assistant-empty"><div class="icon"><i class="fa-solid fa-circle-check" style="color:var(--success)"></i></div><p>No insights — everything looks good!</p></div>';
     } catch (err) { body.innerHTML = `<div class="assistant-empty"><p>${esc(err.message)}</p></div>`; }
 }
 
 async function loadSummary() {
     const body = document.getElementById('assistant-body');
-    body.innerHTML = '<div class="assistant-loading">Loading summary…</div>';
+    body.innerHTML = '<div class="assistant-loading"><div class="loading" style="padding:24px">Loading summary…</div></div>';
     try {
         const data = await api('/assistant/summary');
         body.innerHTML = `
-            <div class="summary-card"><h5>Financial Overview</h5>
+            <div class="summary-card"><h5><i class="fa-solid fa-chart-pie" style="margin-right:6px;color:var(--accent)"></i> Financial Overview</h5>
                 <div class="summary-grid">
                     <div class="summary-item"><div class="label">Revenue</div><div class="value text-success">${fmtCur(data.total_revenue || 0)}</div></div>
                     <div class="summary-item"><div class="label">Expenses</div><div class="value text-danger">${fmtCur(data.total_expenses || 0)}</div></div>
                     <div class="summary-item"><div class="label">Net</div><div class="value">${fmtCur(data.net_income || 0)}</div></div>
                 </div>
             </div>
-            <div class="summary-card"><h5>Operations</h5>
+            <div class="summary-card"><h5><i class="fa-solid fa-gears" style="margin-right:6px;color:var(--accent)"></i> Operations</h5>
                 <div class="summary-grid">
                     <div class="summary-item"><div class="label">Employees</div><div class="value">${data.total_employees || 0}</div></div>
                     <div class="summary-item"><div class="label">Items</div><div class="value">${data.total_items || 0}</div></div>
                     <div class="summary-item"><div class="label">POs</div><div class="value">${data.total_purchase_orders || 0}</div></div>
                 </div>
             </div>
-            <div class="health-score"><div class="health-score-circle ${data.is_balanced ? 'excellent' : 'poor'}"><span class="value">${data.is_balanced ? '✓' : '!'}</span><span class="label">Health</span></div></div>`;
+            <div class="health-score"><div class="health-score-circle ${data.is_balanced ? 'excellent' : 'poor'}"><span class="value">${data.is_balanced ? '<i class="fa-solid fa-check"></i>' : '<i class="fa-solid fa-exclamation"></i>'}</span><span class="label">Health</span></div></div>`;
     } catch (err) { body.innerHTML = `<div class="assistant-empty"><p>${esc(err.message)}</p></div>`; }
 }
 
@@ -1036,32 +889,22 @@ async function askAssistant(message) {
     const msg = message || (input ? input.value.trim() : '');
     if (!msg) return;
     if (input) input.value = '';
-
-    // Switch to chat tab
     if (assistantTab !== 'chat') switchAssistantTab('chat');
-
     const body = document.getElementById('assistant-body');
-    // Remove welcome if present
     const welcome = body.querySelector('.chat-welcome');
     if (welcome) welcome.remove();
-
-    // Add user message
     body.innerHTML += `<div class="chat-message user"><div class="msg-avatar">U</div><div class="msg-content">${esc(msg)}</div></div>`;
-    body.innerHTML += `<div class="chat-message assistant loading" id="assistant-typing"><div class="msg-avatar">✦</div><div class="msg-content"><span class="typing-indicator"><span>●</span><span>●</span><span>●</span></span></div></div>`;
+    body.innerHTML += `<div class="chat-message assistant loading" id="assistant-typing"><div class="msg-avatar"><i class="fa-solid fa-wand-magic-sparkles" style="font-size:10px"></i></div><div class="msg-content"><span class="typing-indicator"><span>●</span><span>●</span><span>●</span></span></div></div>`;
     body.scrollTop = body.scrollHeight;
-
     try {
         const data = await api('/assistant/chat', { method: 'POST', body: JSON.stringify({ message: msg }) });
-        const typing = document.getElementById('assistant-typing');
-        if (typing) typing.remove();
-
+        const typing = document.getElementById('assistant-typing'); if (typing) typing.remove();
         const response = data.response || data.message || 'No response';
-        body.innerHTML += `<div class="chat-message assistant"><div class="msg-avatar">✦</div><div class="msg-content">${response}</div></div>`;
+        body.innerHTML += `<div class="chat-message assistant"><div class="msg-avatar"><i class="fa-solid fa-wand-magic-sparkles" style="font-size:10px"></i></div><div class="msg-content">${response}</div></div>`;
         body.scrollTop = body.scrollHeight;
     } catch (err) {
-        const typing = document.getElementById('assistant-typing');
-        if (typing) typing.remove();
-        body.innerHTML += `<div class="chat-message assistant"><div class="msg-avatar">✦</div><div class="msg-content">Sorry, I couldn't process that request.</div></div>`;
+        const typing = document.getElementById('assistant-typing'); if (typing) typing.remove();
+        body.innerHTML += `<div class="chat-message assistant"><div class="msg-avatar"><i class="fa-solid fa-wand-magic-sparkles" style="font-size:10px"></i></div><div class="msg-content">Sorry, I couldn't process that request.</div></div>`;
     }
 }
 
