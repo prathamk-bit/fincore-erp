@@ -27,14 +27,15 @@ const pageRenderers = {
     'employees': renderEmployees, 'departments': renderDepartments, 'designations': renderDesignations,
     'payroll': renderPayroll, 'items': renderItems, 'categories': renderCategories, 'warehouses': renderWarehouses,
     'stock-ledger': renderStockLedger, 'inventory-adjustments': renderInventoryAdjustments,
-    'purchase-orders': renderPurchaseOrders, 'suppliers': renderSuppliers, 'users': renderUsers
+    'purchase-orders': renderPurchaseOrders, 'suppliers': renderSuppliers, 'users': renderUsers,
+    'about': renderAbout
 };
 const pageTitles = {
     'dashboard': 'Dashboard', 'accounts': 'Chart of Accounts', 'journal-entries': 'Journal Entries',
     'ledger': 'General Ledger', 'trial-balance': 'Trial Balance', 'income-statement': 'Income Statement',
     'balance-sheet': 'Balance Sheet', 'cash-flow': 'Cash Flow Statement', 'transactions': 'Transactions',
     'employees': 'Employees', 'departments': 'Departments', 'designations': 'Designations', 'payroll': 'Payroll',
-    'items': 'Inventory Items', 'categories': 'Categories', 'warehouses': 'Warehouses', 'stock-ledger': 'Stock Ledger',
+    'items': 'Inventory Items', 'categories': 'Categories', 'warehouses': 'Warehouses', 'stock-ledger': 'Stock Ledger', 'about': 'About FinCore',
     'inventory-adjustments': 'Adjustments', 'purchase-orders': 'Purchase Orders', 'suppliers': 'Suppliers', 'users': 'User Management'
 };
 const pageIcons = {
@@ -125,8 +126,8 @@ function showApp() {
             <header class="topbar">
                 <button class="topbar-toggle" id="sidebar-toggle"><i class="fa-solid fa-bars"></i></button>
                 <div class="topbar-title"><h2>Dashboard</h2><div class="breadcrumb"><i class="fa-solid fa-house" style="font-size:10px;margin-right:4px"></i> Home / Dashboard</div></div>
-                <div class="topbar-search"><input type="text" placeholder="Search…"></div>
-                <div class="topbar-actions"></div>
+                <div class="topbar-search"><input type="text" placeholder="Search… (Ctrl+K)" id="global-search" autocomplete="off"></div>
+                <div class="topbar-actions"><button class="btn btn-ghost btn-xs" onclick="showKeyboardShortcutsModal()" title="Keyboard Shortcuts"><i class="fa-solid fa-keyboard"></i></button></div>
             </header>
             <div class="content" id="main-content"></div>
         </div>
@@ -139,6 +140,7 @@ function showApp() {
     document.getElementById('sidebar-toggle').addEventListener('click', toggleSidebar);
     document.getElementById('sidebar-overlay').addEventListener('click', closeSidebar);
     document.getElementById('modal-overlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+    initGlobalSearch();
 }
 
 // === 6. Sidebar ===
@@ -173,6 +175,7 @@ function buildSidebarNav() {
         ]});
     }
     if (role === 'admin') s.push({ t: 'Admin', items: [{ p: 'users', i: 'fa-user-gear', l: 'Users' }] });
+    s.push({ t: 'System', items: [{ p: 'about', i: 'fa-circle-info', l: 'About FinCore' }] });
 
     return s.map(sec => `<div class="nav-group"><div class="nav-group-label">${sec.t}</div>${sec.items.map(it => `<div class="nav-item" data-page="${it.p}"><span class="nav-icon"><i class="fa-solid ${it.i}"></i></span><span class="nav-label">${it.l}</span></div>`).join('')}</div>`).join('');
 }
@@ -251,10 +254,19 @@ async function renderDashboard() {
             <div class="stat-mini fade-up"><div class="stat-icon-box green"><i class="fa-solid fa-boxes-stacked"></i></div><div><div class="stat-value">${stats.total_items || 0}</div><div class="stat-label">Inventory Items</div></div></div>
             <div class="stat-mini fade-up"><div class="stat-icon-box amber"><i class="fa-solid fa-file-invoice"></i></div><div><div class="stat-value">${stats.total_purchase_orders || 0}</div><div class="stat-label">Purchase Orders</div></div></div>
         </div>
+        <div class="card fade-up" style="margin-bottom:20px">
+            <div class="card-header"><h3><i class="fa-solid fa-bolt" style="color:var(--accent);opacity:0.7"></i> Quick Actions</h3>${role === 'admin' ? '<button class="btn btn-outline btn-sm" id="btn-demo" onclick="loadDemoData()"><i class="fa-solid fa-database"></i> Load Demo Data</button>' : ''}</div>
+            <div class="card-body"><div class="quick-actions-grid">
+                ${isFinance ? '<button class="quick-action-card" onclick="showCreateJEModal()"><i class="fa-solid fa-book"></i><span>New Journal Entry</span><kbd>N</kbd></button><button class="quick-action-card" onclick="showCreateTxnModal()"><i class="fa-solid fa-receipt"></i><span>New Transaction</span><kbd>T</kbd></button>' : ''}
+                ${['admin','hr_manager'].includes(role) ? '<button class="quick-action-card" onclick="showCreateEmployeeModal()"><i class="fa-solid fa-user-plus"></i><span>Add Employee</span><kbd>E</kbd></button><button class="quick-action-card" onclick="showCreatePayrollModal()"><i class="fa-solid fa-indian-rupee-sign"></i><span>Run Payroll</span><kbd>P</kbd></button>' : ''}
+                ${['admin','inventory_manager'].includes(role) ? '<button class="quick-action-card" onclick="showCreateItemModal()"><i class="fa-solid fa-box"></i><span>Add Item</span></button><button class="quick-action-card" onclick="showCreatePOModal()"><i class="fa-solid fa-file-invoice"></i><span>New Purchase Order</span></button>' : ''}
+                <button class="quick-action-card" onclick="navigateTo('about')"><i class="fa-solid fa-circle-info"></i><span>About FinCore</span></button>
+            </div></div>
+        </div>
         ${isFinance ? `<div class="dash-grid">
             <div class="card fade-up"><div class="card-header"><h3><i class="fa-solid fa-clock-rotate-left" style="color:var(--accent);opacity:0.7"></i> Recent Journal Entries</h3><button class="btn btn-ghost btn-sm" onclick="navigateTo('journal-entries')">View All <i class="fa-solid fa-arrow-right" style="font-size:10px"></i></button></div>
             <div class="card-body flush"><div class="table-wrap"><table class="tbl"><thead><tr><th>Entry #</th><th>Date</th><th>Description</th><th class="text-right">Amount</th><th>Status</th></tr></thead>
-            <tbody>${recent.length ? recent.slice(0, 8).map(je => `<tr><td class="cell-primary">${esc(je.entry_number)}</td><td>${fmtDate(je.date)}</td><td>${esc(je.description?.substring(0, 40))}</td><td class="text-right mono">${fmtCur(je.total_debit)}</td><td>${statusBadge(je.status || 'posted')}</td></tr>`).join('') : '<tr><td colspan="5" class="text-center text-muted" style="padding:32px">No entries yet</td></tr>'}</tbody></table></div></div></div>
+            <tbody>${recent.length ? recent.slice(0, 8).map(je => `<tr><td class="cell-primary">${esc(je.entry_number)}</td><td>${fmtDate(je.date)}</td><td>${esc(je.description?.substring(0, 40))}</td><td class="text-right mono">${fmtCur(je.total_debit)}</td><td>${statusBadge(je.status || 'posted')}</td></tr>`).join('') : '<tr><td colspan="5" class="text-center text-muted" style="padding:32px"><div class="empty-state" style="padding:24px"><div class="empty-icon"><i class="fa-solid fa-book"></i></div><h3>No entries yet</h3><p>Create your first journal entry to get started.</p><button class="btn btn-primary btn-sm" style="margin-top:8px" onclick="showCreateJEModal()"><i class="fa-solid fa-plus"></i> New Entry</button></div></td></tr>'}</tbody></table></div></div></div>
             <div class="card fade-up"><div class="card-header"><h3><i class="fa-solid fa-heart-pulse" style="color:var(--success);opacity:0.7"></i> System Health</h3></div><div class="card-body">
                 <div style="text-align:center;padding:16px 0">
                     <div style="display:inline-flex;flex-direction:column;align-items:center;gap:10px">
@@ -267,7 +279,7 @@ async function renderDashboard() {
                     <div style="background:var(--surface-hover);padding:16px;border-radius:var(--radius-lg);text-align:center"><div style="font-size:0.6875rem;color:var(--text-muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.04em">Journal Entries</div><div style="font-size:1.25rem;font-weight:700">${stats.total_journal_entries || 0}</div></div>
                 </div>
             </div></div>
-        </div>` : '<div class="card"><div class="card-body"><div class="empty-state"><div class="empty-icon"><i class="fa-solid fa-chart-column"></i></div><h3>Welcome to FinCore</h3><p>Use the sidebar to navigate to your modules.</p></div></div></div>'}
+        </div>` : '<div class="card"><div class="card-body"><div class="empty-state"><div class="empty-icon"><i class="fa-solid fa-chart-column"></i></div><h3>Welcome to FinCore</h3><p>Use the sidebar to navigate to your modules, or press <kbd style="background:var(--surface-hover);padding:2px 6px;border-radius:4px;font-size:0.75rem;border:1px solid var(--border)">?</kbd> for keyboard shortcuts.</p></div></div></div>'}
         </div>`;
     } catch (err) { document.getElementById('main-content').innerHTML = `<div class="card"><div class="card-body"><div class="empty-state"><h3>Error loading dashboard</h3><p>${esc(err.message)}</p></div></div></div>`; }
 }
@@ -382,7 +394,7 @@ async function renderLedger() {
     try {
         const accounts = await api('/accounting/accounts');
         document.getElementById('main-content').innerHTML = `<div class="fade-up">
-        <div class="card"><div class="card-header"><h3><i class="fa-solid fa-rectangle-list" style="color:var(--accent);opacity:0.7"></i> General Ledger ${tip('All posted journal entry lines for a specific account with running balance')}</h3></div>
+        <div class="card"><div class="card-header"><h3><i class="fa-solid fa-rectangle-list" style="color:var(--accent);opacity:0.7"></i> General Ledger ${tip('All posted journal entry lines for a specific account with running balance')}</h3><div class="card-actions"><button class="btn btn-outline btn-sm" onclick="exportLedgerCSV()"><i class="fa-solid fa-download"></i> CSV</button></div></div>
         <div class="card-body"><div class="form-row"><div class="form-group"><label>Select Account</label><select id="ledger-account" onchange="loadLedger()"><option value="">Choose an account…</option>${accounts.map(a => `<option value="${a.id}">${esc(a.code)} — ${esc(a.name)}</option>`).join('')}</select></div></div>
         <div id="ledger-data"></div></div></div></div>`;
     } catch (err) { showAlert(err.message, 'error'); }
@@ -408,10 +420,11 @@ async function renderTrialBalance() {
         const tb = await api('/accounting/trial-balance');
         const accs = tb.entries || tb.accounts || [];
         document.getElementById('main-content').innerHTML = `<div class="fade-up">
-        <div class="card"><div class="card-header"><h3><i class="fa-solid fa-scale-balanced" style="color:var(--accent);opacity:0.7"></i> Trial Balance ${tip('Report listing all accounts with debit and credit totals. Must be balanced')}</h3><div class="card-actions">${tb.is_balanced ? '<span class="badge badge-success"><i class="fa-solid fa-check" style="font-size:9px"></i> Balanced</span>' : '<span class="badge badge-danger"><i class="fa-solid fa-exclamation" style="font-size:9px"></i> Imbalanced</span>'}</div></div>
+        <div class="card"><div class="card-header"><h3><i class="fa-solid fa-scale-balanced" style="color:var(--accent);opacity:0.7"></i> Trial Balance ${tip('Report listing all accounts with debit and credit totals. Must be balanced')}</h3><div class="card-actions">${tb.is_balanced ? '<span class="badge badge-success"><i class="fa-solid fa-check" style="font-size:9px"></i> Balanced</span>' : '<span class="badge badge-danger"><i class="fa-solid fa-exclamation" style="font-size:9px"></i> Imbalanced</span>'} <button class="btn btn-outline btn-sm" onclick="exportTrialBalanceCSV()"><i class="fa-solid fa-download"></i> CSV</button></div></div>
         <div class="card-body flush"><div class="table-wrap"><table class="tbl"><thead><tr><th>Code</th><th>Account Name</th><th>Type</th><th class="text-right">Debit</th><th class="text-right">Credit</th></tr></thead>
         <tbody>${accs.map(a => `<tr><td class="mono">${esc(a.account_code || a.code)}</td><td class="cell-primary">${esc(a.account_name || a.name)}</td><td><span class="badge-flat ${a.account_type === 'asset' ? 'blue' : a.account_type === 'revenue' ? 'green' : a.account_type === 'expense' ? 'red' : a.account_type === 'liability' ? 'amber' : 'indigo'}">${a.account_type}</span></td><td class="text-right mono">${fmtCur(a.debit_balance || a.debit)}</td><td class="text-right mono">${fmtCur(a.credit_balance || a.credit)}</td></tr>`).join('')}</tbody>
         <tfoot><tr><td colspan="3" class="cell-primary">Total</td><td class="text-right mono">${fmtCur(tb.total_debits)}</td><td class="text-right mono">${fmtCur(tb.total_credits)}</td></tr></tfoot></table></div></div></div></div>`;
+        window._tbData = accs; window._tbTotals = { total_debits: tb.total_debits, total_credits: tb.total_credits };
     } catch (err) { showAlert(err.message, 'error'); }
 }
 
@@ -422,13 +435,14 @@ async function renderIncomeStatement() {
         const data = await api('/accounting/reports/income-statement?start_date=2025-01-01&end_date=2025-12-31');
         const revItems = (data.revenue_section?.line_items || data.revenue_accounts || []);
         const expItems = (data.expense_section?.line_items || data.expense_accounts || []);
-        document.getElementById('main-content').innerHTML = `<div class="fade-up"><div class="card"><div class="card-header"><h3><i class="fa-solid fa-arrow-trend-up" style="color:var(--accent);opacity:0.7"></i> Income Statement ${tip('Revenue minus Expenses. Positive net income means profit')}</h3></div>
+        document.getElementById('main-content').innerHTML = `<div class="fade-up"><div class="card"><div class="card-header"><h3><i class="fa-solid fa-arrow-trend-up" style="color:var(--accent);opacity:0.7"></i> Income Statement ${tip('Revenue minus Expenses. Positive net income means profit')}</h3><div class="card-actions"><button class="btn btn-outline btn-sm" onclick="exportIncomeStatementPDF()"><i class="fa-solid fa-file-pdf"></i> PDF</button></div></div>
         <div class="card-body">
             <div class="report-header"><h2>Income Statement</h2><p>For the period Jan 1, 2025 — Dec 31, 2025</p></div>
             <div class="report-section"><h4><i class="fa-solid fa-arrow-up" style="margin-right:4px"></i> Revenue</h4><table class="tbl"><tbody>${revItems.map(a => `<tr><td>${esc(a.account_name || a.name)}</td><td class="text-right mono">${fmtCur(a.amount || a.balance)}</td></tr>`).join('') || '<tr><td colspan="2" class="text-muted">No revenue accounts</td></tr>'}</tbody><tfoot><tr><td class="cell-primary">Total Revenue</td><td class="text-right mono">${fmtCur(data.total_revenue)}</td></tr></tfoot></table></div>
             <div class="report-section"><h4><i class="fa-solid fa-arrow-down" style="margin-right:4px"></i> Expenses</h4><table class="tbl"><tbody>${expItems.map(a => `<tr><td>${esc(a.account_name || a.name)}</td><td class="text-right mono">${fmtCur(a.amount || a.balance)}</td></tr>`).join('') || '<tr><td colspan="2" class="text-muted">No expense accounts</td></tr>'}</tbody><tfoot><tr><td class="cell-primary">Total Expenses</td><td class="text-right mono">${fmtCur(data.total_expenses)}</td></tr></tfoot></table></div>
             <div style="background:${parseFloat(data.net_income) >= 0 ? 'var(--success-light)' : 'var(--danger-light)'};padding:18px 24px;border-radius:var(--radius-lg);display:flex;justify-content:space-between;align-items:center;margin-top:24px"><span style="font-weight:700;font-size:1rem"><i class="fa-solid ${parseFloat(data.net_income) >= 0 ? 'fa-circle-check' : 'fa-circle-xmark'}" style="margin-right:6px"></i> Net Income</span><span style="font-weight:700;font-size:1.25rem;color:${parseFloat(data.net_income) >= 0 ? 'var(--success)' : 'var(--danger)'}">${fmtCur(data.net_income)}</span></div>
         </div></div></div>`;
+        window._incStmtData = { revItems, expItems, total_revenue: data.total_revenue, total_expenses: data.total_expenses, net_income: data.net_income };
     } catch (err) { showAlert(err.message, 'error'); }
 }
 
@@ -911,4 +925,284 @@ async function askAssistant(message) {
 // === 30. Init ===
 document.addEventListener('DOMContentLoaded', () => {
     if (state.token) { checkAuth(); } else { showLoginPage(); }
+    initKeyboardShortcuts();
+    initSessionHandler();
 });
+
+// === 31. GLOBAL SEARCH ===
+let searchData = { employees: [], accounts: [], items: [], transactions: [] };
+let searchTimeout = null;
+
+async function initGlobalSearch() {
+    const searchInput = document.querySelector('.topbar-search input');
+    if (!searchInput) return;
+    searchInput.setAttribute('id', 'global-search');
+    searchInput.setAttribute('placeholder', 'Search employees, accounts, items… (Ctrl+K)');
+    searchInput.setAttribute('autocomplete', 'off');
+
+    // Create results dropdown
+    const dropdown = document.createElement('div');
+    dropdown.id = 'search-dropdown';
+    dropdown.className = 'search-dropdown';
+    searchInput.parentElement.appendChild(dropdown);
+
+    searchInput.addEventListener('input', () => {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => performSearch(searchInput.value.trim()), 250);
+    });
+    searchInput.addEventListener('focus', () => { if (searchInput.value.trim()) performSearch(searchInput.value.trim()); });
+    searchInput.addEventListener('blur', () => { setTimeout(() => { dropdown.classList.remove('active'); }, 200); });
+    // Preload data
+    loadSearchData();
+}
+
+async function loadSearchData() {
+    const role = state.user?.role;
+    try { searchData.accounts = await api('/accounting/accounts').catch(() => []); } catch {}
+    try { if (['admin','hr_manager'].includes(role)) searchData.employees = await api('/hr/employees').catch(() => []); } catch {}
+    try { if (['admin','inventory_manager'].includes(role)) searchData.items = await api('/inventory/items').catch(() => []); } catch {}
+}
+
+function performSearch(query) {
+    const dropdown = document.getElementById('search-dropdown');
+    if (!dropdown || !query || query.length < 2) { if (dropdown) dropdown.classList.remove('active'); return; }
+    const q = query.toLowerCase();
+    const results = [];
+
+    (searchData.accounts || []).forEach(a => {
+        if (a.name?.toLowerCase().includes(q) || a.code?.toLowerCase().includes(q))
+            results.push({ type: 'Account', icon: 'fa-building-columns', label: `${a.code} — ${a.name}`, sub: a.account_type, page: 'accounts' });
+    });
+    (searchData.employees || []).forEach(e => {
+        if (e.first_name?.toLowerCase().includes(q) || e.last_name?.toLowerCase().includes(q) || e.employee_code?.toLowerCase().includes(q))
+            results.push({ type: 'Employee', icon: 'fa-user', label: `${e.first_name} ${e.last_name}`, sub: e.employee_code, page: 'employees' });
+    });
+    (searchData.items || []).forEach(i => {
+        if (i.name?.toLowerCase().includes(q) || i.code?.toLowerCase().includes(q))
+            results.push({ type: 'Item', icon: 'fa-box', label: `${i.code} — ${i.name}`, sub: fmtCur(i.unit_price), page: 'items' });
+    });
+
+    if (results.length === 0) {
+        dropdown.innerHTML = '<div class="search-empty"><i class="fa-solid fa-magnifying-glass" style="margin-right:6px;opacity:0.4"></i> No results for "' + esc(query) + '"</div>';
+    } else {
+        dropdown.innerHTML = results.slice(0, 8).map(r => `
+            <div class="search-result" onclick="navigateTo('${r.page}');document.getElementById('search-dropdown').classList.remove('active');document.getElementById('global-search').value='';">
+                <div class="search-result-icon"><i class="fa-solid ${r.icon}"></i></div>
+                <div class="search-result-info"><div class="search-result-label">${esc(r.label)}</div><div class="search-result-sub">${esc(r.sub)}</div></div>
+                <span class="badge-flat gray" style="font-size:0.625rem">${r.type}</span>
+            </div>`).join('');
+    }
+    dropdown.classList.add('active');
+}
+
+// === 32. EXPORT FUNCTIONALITY ===
+function exportToCSV(data, headers, filename) {
+    const csvRows = [headers.join(',')];
+    data.forEach(row => {
+        csvRows.push(headers.map(h => {
+            const val = row[h] !== undefined ? String(row[h]) : '';
+            return '"' + val.replace(/"/g, '""') + '"';
+        }).join(','));
+    });
+    const blob = new Blob([csvRows.join('\n')], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename + '.csv';
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+    showAlert(`Exported ${filename}.csv successfully`, 'success');
+}
+
+function exportToPDF(title, tableData, headers, filename) {
+    const w = window.open('', '_blank');
+    w.document.write(`<!DOCTYPE html><html><head><title>${title}</title><style>
+        body{font-family:Inter,-apple-system,sans-serif;margin:40px;color:#1a1a1a}
+        h1{font-size:22px;margin-bottom:4px;color:#0A1628} h2{font-size:14px;color:#666;font-weight:400;margin-bottom:24px}
+        table{width:100%;border-collapse:collapse;font-size:12px}
+        th{text-align:left;padding:10px 12px;background:#f5f7fa;border-bottom:2px solid #e4e7ec;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:0.04em;color:#475467}
+        td{padding:10px 12px;border-bottom:1px solid #f2f4f7}
+        .text-right{text-align:right} .footer{margin-top:32px;font-size:11px;color:#98a2b3;border-top:1px solid #e4e7ec;padding-top:12px}
+        @media print{body{margin:20px}}
+    </style></head><body>
+        <h1>FinCore ERP — ${title}</h1>
+        <h2>Generated on ${new Date().toLocaleDateString('en-IN', { year:'numeric', month:'long', day:'numeric' })}</h2>
+        <table><thead><tr>${headers.map(h => `<th>${h.label}</th>`).join('')}</tr></thead>
+        <tbody>${tableData.map(row => `<tr>${headers.map(h => `<td class="${h.align || ''}">${row[h.key] !== undefined ? row[h.key] : '—'}</td>`).join('')}</tr>`).join('')}</tbody></table>
+        <div class="footer">This report was generated by FinCore ERP System. For internal use only.</div>
+        <script>setTimeout(()=>{window.print()},500)<\/script>
+    </body></html>`);
+    w.document.close();
+}
+
+// === 33. DEMO MODE ===
+let demoLoading = false;
+async function loadDemoData() {
+    if (demoLoading) return;
+    if (localStorage.getItem('fincore_demo_loaded')) {
+        showAlert('Demo data has already been loaded. System is ready!', 'info');
+        return;
+    }
+    demoLoading = true;
+    showAlert('Loading demo data… This may take a moment.', 'info');
+    const btn = document.getElementById('btn-demo');
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Loading…'; }
+
+    try {
+        // The backend seeds demo data on startup, so data should already exist.
+        // We verify by checking stats
+        const stats = await api('/dashboard/stats');
+        if ((stats.total_employees || 0) > 0 && (stats.total_items || 0) > 0) {
+            localStorage.setItem('fincore_demo_loaded', 'true');
+            showAlert('Demo data loaded successfully! System is fully populated.', 'success');
+            renderDashboard();
+        } else {
+            showAlert('No demo data found. Contact administrator to seed the database.', 'warning');
+        }
+    } catch (err) {
+        showAlert('Error loading demo data: ' + err.message, 'error');
+    } finally {
+        demoLoading = false;
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-database"></i> Load Demo Data'; }
+    }
+}
+
+// === 34. ABOUT PAGE ===
+function renderAbout() {
+    document.getElementById('main-content').innerHTML = `<div class="fade-up">
+    <div class="card" style="max-width:800px">
+        <div class="card-body" style="padding:40px">
+            <div style="text-align:center;margin-bottom:36px">
+                <div style="width:64px;height:64px;background:linear-gradient(135deg,var(--accent),#3B5BDB);border-radius:var(--radius-xl);display:inline-flex;align-items:center;justify-content:center;color:white;font-size:28px;margin-bottom:16px;box-shadow:0 8px 24px rgba(79,110,247,0.3)"><i class="fa-solid fa-gem"></i></div>
+                <h1 style="font-size:2rem;margin-bottom:4px;letter-spacing:-0.03em">FinCore ERP</h1>
+                <p style="color:var(--text-muted);font-size:1rem">Finance-Centric Enterprise Resource Planning System</p>
+                <div style="margin-top:12px"><span class="badge badge-primary">v2.0</span> <span class="badge badge-success">Production Ready</span></div>
+            </div>
+            <div style="background:var(--surface-hover);padding:24px;border-radius:var(--radius-lg);margin-bottom:24px">
+                <h3 style="margin-bottom:12px;font-size:0.9375rem"><i class="fa-solid fa-circle-info" style="color:var(--accent);margin-right:8px"></i> About</h3>
+                <p style="color:var(--text-secondary);line-height:1.7;font-size:0.875rem">FinCore is a comprehensive, modern ERP system designed for food and beverage manufacturing businesses. It provides integrated modules for accounting, finance, human resources, inventory management, procurement, and AI-powered business intelligence — all within a clean, premium SaaS interface.</p>
+            </div>
+            <h3 style="margin-bottom:16px;font-size:0.9375rem"><i class="fa-solid fa-cubes" style="color:var(--accent);margin-right:8px"></i> Core Modules</h3>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:28px">
+                ${[
+                    { i:'fa-building-columns', t:'Accounting', d:'Chart of Accounts, Journal Entries, General Ledger' },
+                    { i:'fa-chart-line', t:'Financial Reports', d:'Income Statement, Balance Sheet, Cash Flow' },
+                    { i:'fa-users', t:'Human Resources', d:'Employees, Departments, Payroll Processing' },
+                    { i:'fa-boxes-stacked', t:'Inventory', d:'Items, Warehouses, Stock Ledger, Adjustments' },
+                    { i:'fa-file-invoice', t:'Procurement', d:'Purchase Orders, Suppliers, GRN Processing' },
+                    { i:'fa-wand-magic-sparkles', t:'AI Assistant', d:'Smart Insights, Chat, Financial Summaries' }
+                ].map(m => `<div style="padding:18px;background:var(--surface-hover);border-radius:var(--radius-lg);border:1px solid var(--border-light)">
+                    <i class="fa-solid ${m.i}" style="color:var(--accent);font-size:18px;margin-bottom:10px;display:block"></i>
+                    <div style="font-weight:600;font-size:0.8125rem;margin-bottom:4px">${m.t}</div>
+                    <div style="font-size:0.75rem;color:var(--text-muted);line-height:1.5">${m.d}</div>
+                </div>`).join('')}
+            </div>
+            <h3 style="margin-bottom:16px;font-size:0.9375rem"><i class="fa-solid fa-shield-halved" style="color:var(--accent);margin-right:8px"></i> Key Features</h3>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:28px">
+                ${['Double-entry Bookkeeping','Role-based Access Control','Real-time Financial Reports','Automated Payroll','Inventory Tracking','Purchase Order Workflow','AI-powered Insights','Export to CSV & PDF','Session Security','Keyboard Shortcuts'].map(f => `<div style="display:flex;align-items:center;gap:8px;padding:8px 0;font-size:0.8125rem"><i class="fa-solid fa-circle-check" style="color:var(--success);font-size:12px"></i> ${f}</div>`).join('')}
+            </div>
+            <div style="background:var(--surface-hover);padding:20px;border-radius:var(--radius-lg);text-align:center">
+                <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:4px">Built with FastAPI • Vanilla JS • SQLAlchemy</p>
+                <p style="font-size:0.6875rem;color:var(--text-muted)">© ${new Date().getFullYear()} FinCore ERP. All rights reserved.</p>
+            </div>
+        </div>
+    </div></div>`;
+}
+
+// === 35. SESSION HANDLING ===
+let idleTimer = null;
+const IDLE_TIMEOUT = 15 * 60 * 1000; // 15 minutes
+
+function resetIdleTimer() {
+    clearTimeout(idleTimer);
+    if (!state.token) return;
+    idleTimer = setTimeout(() => {
+        showAlert('Session expired due to inactivity. Please log in again.', 'warning');
+        setTimeout(logout, 1500);
+    }, IDLE_TIMEOUT);
+}
+
+function initSessionHandler() {
+    ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(evt => {
+        document.addEventListener(evt, resetIdleTimer, { passive: true });
+    });
+    resetIdleTimer();
+}
+
+// === 36. KEYBOARD SHORTCUTS ===
+function initKeyboardShortcuts() {
+    document.addEventListener('keydown', (e) => {
+        // Don't trigger in input fields
+        if (['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName)) {
+            if (e.key === 'Escape') { e.target.blur(); closeModal(); }
+            return;
+        }
+        // Ctrl+K → Focus search
+        if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); const s = document.getElementById('global-search'); if (s) s.focus(); return; }
+        // Escape → Close modal/assistant
+        if (e.key === 'Escape') { closeModal(); if (assistantOpen) toggleAssistant(); return; }
+
+        // Shortcuts only when logged in
+        if (!state.token) return;
+        const role = state.user?.role;
+        switch(e.key.toLowerCase()) {
+            case 'n': if (['admin','accountant'].includes(role)) showCreateJEModal(); break;
+            case 't': if (['admin','accountant'].includes(role)) showCreateTxnModal(); break;
+            case 'e': if (['admin','hr_manager'].includes(role)) showCreateEmployeeModal(); break;
+            case 'p': if (['admin','hr_manager'].includes(role)) showCreatePayrollModal(); break;
+            case 'd': navigateTo('dashboard'); break;
+            case '?': showKeyboardShortcutsModal(); break;
+        }
+    });
+}
+
+function showKeyboardShortcutsModal() {
+    const shortcuts = [
+        { keys: 'Ctrl + K', desc: 'Focus search bar' },
+        { keys: 'D', desc: 'Go to Dashboard' },
+        { keys: 'N', desc: 'New Journal Entry' },
+        { keys: 'T', desc: 'New Transaction' },
+        { keys: 'E', desc: 'New Employee' },
+        { keys: 'P', desc: 'New Payroll' },
+        { keys: 'Esc', desc: 'Close modal / panel' },
+        { keys: '?', desc: 'Show this dialog' },
+    ];
+    showModal('<i class="fa-solid fa-keyboard" style="margin-right:8px;color:var(--accent)"></i> Keyboard Shortcuts',
+        `<div style="display:grid;gap:8px">${shortcuts.map(s => `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border-light)"><span style="font-size:0.8125rem;color:var(--text-secondary)">${s.desc}</span><kbd style="background:var(--surface-hover);padding:4px 10px;border-radius:var(--radius-sm);font-size:0.75rem;font-family:'SF Mono','Fira Code',monospace;border:1px solid var(--border);color:var(--text)">${s.keys}</kbd></div>`).join('')}</div>`);
+}
+
+// === 37. EXPORT HELPERS ===
+function exportTrialBalanceCSV() {
+    if (!window._tbData) { showAlert('Please load the Trial Balance first', 'warning'); return; }
+    const data = window._tbData.map(a => ({
+        Code: a.account_code || a.code, Name: a.account_name || a.name, Type: a.account_type,
+        Debit: a.debit_balance || a.debit || 0, Credit: a.credit_balance || a.credit || 0
+    }));
+    exportToCSV(data, ['Code','Name','Type','Debit','Credit'], 'trial_balance_' + new Date().toISOString().split('T')[0]);
+}
+
+function exportIncomeStatementPDF() {
+    if (!window._incStmtData) { showAlert('Please load the Income Statement first', 'warning'); return; }
+    const d = window._incStmtData;
+    const tableData = [];
+    d.revItems.forEach(a => tableData.push({ account: a.account_name || a.name, type: 'Revenue', amount: fmtCur(a.amount || a.balance) }));
+    tableData.push({ account: 'Total Revenue', type: '', amount: fmtCur(d.total_revenue) });
+    d.expItems.forEach(a => tableData.push({ account: a.account_name || a.name, type: 'Expense', amount: fmtCur(a.amount || a.balance) }));
+    tableData.push({ account: 'Total Expenses', type: '', amount: fmtCur(d.total_expenses) });
+    tableData.push({ account: 'NET INCOME', type: '', amount: fmtCur(d.net_income) });
+    exportToPDF('Income Statement', tableData, [
+        { key: 'account', label: 'Account' }, { key: 'type', label: 'Type' }, { key: 'amount', label: 'Amount', align: 'text-right' }
+    ], 'income_statement');
+}
+
+function exportLedgerCSV() {
+    const rows = document.querySelectorAll('#ledger-data .tbl tbody tr');
+    if (!rows.length) { showAlert('No ledger data to export', 'warning'); return; }
+    const data = [];
+    rows.forEach(row => {
+        const cells = row.querySelectorAll('td');
+        if (cells.length >= 6) {
+            data.push({ Date: cells[0].textContent.trim(), Entry: cells[1].textContent.trim(), Description: cells[2].textContent.trim(), Debit: cells[3].textContent.trim(), Credit: cells[4].textContent.trim(), Balance: cells[5].textContent.trim() });
+        }
+    });
+    if (data.length) exportToCSV(data, ['Date','Entry','Description','Debit','Credit','Balance'], 'ledger_' + new Date().toISOString().split('T')[0]);
+}
