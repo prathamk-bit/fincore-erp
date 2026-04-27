@@ -494,3 +494,57 @@ h4 { font-size: 1rem; }
 @media (max-width: 480px) {
     .quick-actions-grid { grid-template-columns: 1fr; }
 }
+
+/* === TOUR WALKTHROUGH === */
+.tour-overlay { position: fixed; inset: 0; background: rgba(10,22,40,0.5); z-index: 9990; backdrop-filter: blur(2px); animation: fadeIn 0.3s; }
+.tour-highlight { position: fixed; z-index: 9991; border: 2px solid var(--accent); border-radius: var(--radius-lg); box-shadow: 0 0 0 9999px rgba(10,22,40,0.45), 0 0 20px rgba(79,110,247,0.4); pointer-events: none; animation: tourPulse 2s ease infinite; }
+@keyframes tourPulse { 0%,100% { box-shadow: 0 0 0 9999px rgba(10,22,40,0.45), 0 0 20px rgba(79,110,247,0.4); } 50% { box-shadow: 0 0 0 9999px rgba(10,22,40,0.45), 0 0 30px rgba(79,110,247,0.6); } }
+.tour-tooltip { position: fixed; z-index: 9992; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 24px; max-width: 340px; box-shadow: var(--shadow-xl); animation: fadeUp 0.3s var(--ease); }
+.tour-tooltip h4 { font-size: 1rem; font-weight: 700; margin-bottom: 8px; color: var(--text); }
+.tour-tooltip p { font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 16px; }
+.tour-step-badge { display: inline-block; background: var(--accent-light); color: var(--accent); font-size: 0.6875rem; font-weight: 600; padding: 3px 10px; border-radius: 20px; margin-bottom: 10px; letter-spacing: 0.02em; }
+.tour-actions { display: flex; justify-content: space-between; align-items: center; }
+
+/* === SKELETON LOADER === */
+.skeleton-loader { padding: 0; }
+.skeleton-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.skeleton-block { background: linear-gradient(90deg, var(--surface-hover) 25%, var(--border-light) 50%, var(--surface-hover) 75%); background-size: 400% 100%; border-radius: var(--radius-lg); animation: shimmer 1.5s ease infinite; border: 1px solid var(--border-light); }
+@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+/* === DASHBOARD HEADER === */
+.dashboard-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; padding: 0 2px; }
+.dashboard-welcome { font-size: 1.375rem; font-weight: 700; color: var(--text); letter-spacing: -0.03em; margin-bottom: 4px; }
+.dashboard-subtitle { font-size: 0.875rem; color: var(--text-muted); font-weight: 400; }
+@media (max-width: 768px) { .dashboard-header { flex-direction: column; align-items: flex-start; gap: 12px; } }
+
+/* === JE BALANCE VALIDATION === */
+.je-balance-status { display: flex; align-items: center; gap: 8px; padding: 12px 16px; margin-top: 12px; border-radius: var(--radius); font-size: 0.8125rem; font-weight: 500; transition: all 0.25s var(--ease); }
+.je-balance-status.balanced { background: var(--success-light); border: 1px solid var(--success-border); }
+.je-balance-status.unbalanced { background: var(--warning-light); border: 1px solid var(--warning-border); }
+
+/* === VISUAL DEPTH IMPROVEMENTS === */
+.card { box-shadow: var(--shadow-xs); }
+.card:hover { box-shadow: var(--shadow-md); }
+.stat-card { box-shadow: var(--shadow-xs); }
+.stat-mini { box-shadow: var(--shadow-xs); }
+.modal { box-shadow: var(--shadow-xl); }
+.topbar { box-shadow: 0 1px 3px rgba(16,24,40,0.04); }
+
+/* === BUTTON ACTIVE/PRESSED STATES === */
+.btn { position: relative; overflow: hidden; }
+.btn::after { content: ''; position: absolute; inset: 0; background: radial-gradient(circle, rgba(255,255,255,0.25) 10%, transparent 70%); opacity: 0; transition: opacity 0.3s; }
+.btn:active::after { opacity: 1; }
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(79,110,247,0.35); }
+.btn-primary:active { transform: translateY(0) scale(0.98); }
+
+/* === SMOOTH SCROLL === */
+html { scroll-behavior: smooth; }
+
+/* === IMPROVED FOCUS STATES === */
+input:focus, select:focus, textarea:focus { border-color: var(--accent) !important; box-shadow: 0 0 0 4px var(--accent-light) !important; outline: none; }
+
+/* === FORM PLACEHOLDERS === */
+input::placeholder, textarea::placeholder { color: var(--text-muted); font-weight: 400; }
+
+/* === FONT BOLD UTILITY === */
+.font-bold { font-weight: 700; }

@@ -26,6 +26,15 @@ from backend.models.user import User
 
 router = APIRouter(prefix="/api/dashboard", tags=["Dashboard"])
 
+@router.post("/reset-demo")
+def reset_demo_data(current_user: User = Depends(get_current_user)):
+    """Reset demo data to initial state (Dev/Demo Only)."""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Only admins can reset demo data")
+    from backend.main import seed_demo_data
+    seed_demo_data(force=True)
+    return {"message": "Demo data reset successfully"}
+
 
 # ---------------------------------------------------------------------------
 # Response schemas

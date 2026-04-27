@@ -127,7 +127,7 @@ function showApp() {
                 <button class="topbar-toggle" id="sidebar-toggle"><i class="fa-solid fa-bars"></i></button>
                 <div class="topbar-title"><h2>Dashboard</h2><div class="breadcrumb"><i class="fa-solid fa-house" style="font-size:10px;margin-right:4px"></i> Home / Dashboard</div></div>
                 <div class="topbar-search"><input type="text" placeholder="Search… (Ctrl+K)" id="global-search" autocomplete="off"></div>
-                <div class="topbar-actions"><button class="btn btn-ghost btn-xs" onclick="showKeyboardShortcutsModal()" title="Keyboard Shortcuts"><i class="fa-solid fa-keyboard"></i></button></div>
+                <div class="topbar-actions"><button class="btn btn-ghost btn-xs" onclick="startTour()" title="Take a Tour"><i class="fa-solid fa-route"></i></button><button class="btn btn-ghost btn-xs" onclick="showKeyboardShortcutsModal()" title="Keyboard Shortcuts"><i class="fa-solid fa-keyboard"></i></button></div>
             </header>
             <div class="content" id="main-content"></div>
         </div>
@@ -203,7 +203,10 @@ function closeModal() { document.getElementById('modal-overlay').classList.remov
 function fmtCur(n) { return (parseFloat(n) || 0).toLocaleString('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 2 }); }
 function fmtDate(d) { if (!d) return '—'; return new Date(d).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' }); }
 function esc(s) { if (!s) return ''; return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
-function showLoading() { const m = document.getElementById('main-content'); if (m) m.innerHTML = '<div class="loading">Loading…</div>'; }
+function showLoading() {
+    const m = document.getElementById('main-content'); if (!m) return;
+    m.innerHTML = `<div class="skeleton-loader fade-up"><div class="skeleton-row"><div class="skeleton-block" style="height:120px"></div><div class="skeleton-block" style="height:120px"></div><div class="skeleton-block" style="height:120px"></div></div><div class="skeleton-block" style="height:200px;margin-top:20px"></div></div>`;
+}
 function tip(text) { return `<i class="info-tip" data-tip="${esc(text)}">i</i>`; }
 
 function statusBadge(status) {
@@ -215,14 +218,18 @@ function statusBadge(status) {
 async function renderDashboard() {
     showLoading();
     try {
-        const stats = await api('/dashboard/stats');
+        const stats = await cachedApi('/dashboard/stats');
         const role = state.user?.role;
         const isFinance = ['admin', 'accountant'].includes(role);
         let recent = [];
-        if (isFinance) { try { recent = await api('/dashboard/recent-journal-entries'); } catch {} }
+        if (isFinance) { try { recent = await cachedApi('/dashboard/recent-journal-entries'); } catch {} }
 
         const main = document.getElementById('main-content');
         main.innerHTML = `<div class="fade-up">
+        <div class="dashboard-header">
+            <div><h2 class="dashboard-welcome">Welcome back, ${esc(state.user?.username || 'User')}</h2><p class="dashboard-subtitle">Real-time financial overview of your organization</p></div>
+            <button class="btn btn-outline btn-sm" onclick="startTour()"><i class="fa-solid fa-route"></i> Take a Tour</button>
+        </div>
         ${isFinance ? `<div class="stats-grid stagger">
             <div class="stat-card fade-up">
                 <div class="stat-icon blue"><i class="fa-solid fa-vault"></i></div>
@@ -255,7 +262,7 @@ async function renderDashboard() {
             <div class="stat-mini fade-up"><div class="stat-icon-box amber"><i class="fa-solid fa-file-invoice"></i></div><div><div class="stat-value">${stats.total_purchase_orders || 0}</div><div class="stat-label">Purchase Orders</div></div></div>
         </div>
         <div class="card fade-up" style="margin-bottom:20px">
-            <div class="card-header"><h3><i class="fa-solid fa-bolt" style="color:var(--accent);opacity:0.7"></i> Quick Actions</h3>${role === 'admin' ? '<button class="btn btn-outline btn-sm" id="btn-demo" onclick="loadDemoData()"><i class="fa-solid fa-database"></i> Load Demo Data</button>' : ''}</div>
+            <div class="card-header"><h3><i class="fa-solid fa-bolt" style="color:var(--accent);opacity:0.7"></i> Quick Actions</h3>${role === 'admin' ? '<div style="display:flex;gap:8px"><button class="btn btn-outline btn-sm" id="btn-demo-reset" onclick="resetDemoData()"><i class="fa-solid fa-arrow-rotate-left"></i> Reset Demo</button><button class="btn btn-primary btn-sm" id="btn-demo" onclick="loadDemoData()"><i class="fa-solid fa-database"></i> Load Demo Data</button></div>' : ''}</div>
             <div class="card-body"><div class="quick-actions-grid">
                 ${isFinance ? '<button class="quick-action-card" onclick="showCreateJEModal()"><i class="fa-solid fa-book"></i><span>New Journal Entry</span><kbd>N</kbd></button><button class="quick-action-card" onclick="showCreateTxnModal()"><i class="fa-solid fa-receipt"></i><span>New Transaction</span><kbd>T</kbd></button>' : ''}
                 ${['admin','hr_manager'].includes(role) ? '<button class="quick-action-card" onclick="showCreateEmployeeModal()"><i class="fa-solid fa-user-plus"></i><span>Add Employee</span><kbd>E</kbd></button><button class="quick-action-card" onclick="showCreatePayrollModal()"><i class="fa-solid fa-indian-rupee-sign"></i><span>Run Payroll</span><kbd>P</kbd></button>' : ''}
@@ -304,7 +311,7 @@ function showCreateAccountModal() {
             <div class="form-row"><div class="form-group"><label>Type <span class="req">*</span></label><select id="acc-type"><option value="asset">Asset</option><option value="liability">Liability</option><option value="equity">Equity</option><option value="revenue">Revenue</option><option value="expense">Expense</option></select></div>
             <div class="form-group"><label>Sub-Type</label><input type="text" id="acc-subtype" placeholder="Optional"></div></div>
             <div class="form-group"><label>Description</label><textarea id="acc-desc" rows="2" placeholder="Optional description"></textarea></div>
-        </form>`, `<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="createAccount()"><i class="fa-solid fa-check"></i> Create Account</button>`);
+        </form>`, `<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="createAccount()"><i class="fa-solid fa-plus"></i> Create New Account</button>`);
 }
 
 async function createAccount() {
@@ -314,7 +321,7 @@ async function createAccount() {
             account_type: document.getElementById('acc-type').value, sub_type: document.getElementById('acc-subtype').value || null,
             description: document.getElementById('acc-desc').value || null
         })});
-        closeModal(); showAlert('Account created', 'success'); renderAccounts();
+        closeModal(); showAlert('Account created successfully!', 'success'); clearCache('/accounting'); renderAccounts();
     } catch (err) { showAlert(err.message, 'error'); }
 }
 
@@ -324,7 +331,7 @@ async function renderJournalEntries() {
     try {
         const entries = await api('/accounting/journal-entries');
         document.getElementById('main-content').innerHTML = `<div class="fade-up">
-        <div class="card"><div class="card-header"><h3><i class="fa-solid fa-book" style="color:var(--accent);opacity:0.7"></i> Journal Entries ${tip('Double-entry bookkeeping records. Each entry must have equal debits and credits')}</h3><div class="card-actions"><button class="btn btn-primary btn-sm" onclick="showCreateJEModal()"><i class="fa-solid fa-plus"></i> New Entry</button></div></div>
+        <div class="card"><div class="card-header"><h3><i class="fa-solid fa-book" style="color:var(--accent);opacity:0.7"></i> Journal Entries ${tip('Double-entry bookkeeping records. Each entry must have equal debits and credits')}</h3><div class="card-actions"><button class="btn btn-primary btn-sm" onclick="showCreateJEModal()"><i class="fa-solid fa-plus"></i> Create Journal Entry</button></div></div>
         <div class="card-body flush"><div class="table-wrap"><table class="tbl"><thead><tr><th>Entry #</th><th>Date</th><th>Description</th><th class="text-right">Debit</th><th class="text-right">Credit</th><th>Status</th><th></th></tr></thead>
         <tbody>${entries.map(je => `<tr><td class="cell-primary">${esc(je.entry_number)}</td><td>${fmtDate(je.date)}</td><td>${esc(je.description?.substring(0, 50))}</td><td class="text-right mono">${fmtCur(je.total_debit)}</td><td class="text-right mono">${fmtCur(je.total_credit)}</td><td>${statusBadge(je.status)}</td>
         <td><div class="tbl-actions"><button class="btn-icon" onclick="viewJE(${je.id})" title="View"><i class="fa-solid fa-eye"></i></button>${je.status === 'draft' ? `<button class="btn-icon" onclick="postJE(${je.id})" title="Post"><i class="fa-solid fa-check"></i></button>` : ''}</div></td></tr>`).join('')}</tbody></table></div></div></div></div>`;
@@ -348,7 +355,7 @@ async function viewJE(id) {
 }
 
 async function postJE(id) {
-    try { await api(`/accounting/journal-entries/${id}/post`, { method: 'POST' }); showAlert('Entry posted', 'success'); renderJournalEntries(); } catch (err) { showAlert(err.message, 'error'); }
+    try { await api(`/accounting/journal-entries/${id}/post`, { method: 'POST' }); showAlert('Journal entry posted to ledger successfully!', 'success'); clearCache(); renderJournalEntries(); } catch (err) { showAlert('Failed to post entry: ' + err.message, 'error'); }
 }
 
 function showCreateJEModal() {
@@ -358,14 +365,15 @@ function showCreateJEModal() {
         for (let i = 0; i < lineCount; i++) h += `<div class="form-row cols-3" id="je-line-${i}"><div class="form-group"><label>Account ID</label><input type="number" id="je-acc-${i}" required></div><div class="form-group"><label>Debit</label><input type="number" step="0.01" id="je-dr-${i}" value="0"></div><div class="form-group"><label>Credit</label><input type="number" step="0.01" id="je-cr-${i}" value="0"></div></div>`;
         return h;
     };
-    showModalLg('New Journal Entry', `
+    showModalLg('<i class="fa-solid fa-book" style="margin-right:8px;color:var(--accent)"></i> Create Journal Entry', `
         <form id="form-je">
-            <div class="form-row"><div class="form-group"><label>Date <span class="req">*</span></label><input type="date" id="je-date" required></div><div class="form-group"><label>Description <span class="req">*</span></label><input type="text" id="je-desc" required></div></div>
+            <div class="form-row"><div class="form-group"><label>Date <span class="req">*</span></label><input type="date" id="je-date" value="${new Date().toISOString().split('T')[0]}" required></div><div class="form-group"><label>Description <span class="req">*</span></label><input type="text" id="je-desc" placeholder="e.g. Office rent payment for April" required></div></div>
             <h4 style="margin:16px 0 8px;font-size:0.8125rem"><i class="fa-solid fa-list" style="margin-right:4px;opacity:0.5"></i> Line Items</h4>
             <div id="je-lines">${getLinesHTML()}</div>
             <button type="button" class="btn btn-ghost btn-sm" onclick="addJELine()" style="margin-top:8px"><i class="fa-solid fa-plus"></i> Add Line</button>
-        </form>`, `<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="createJE()"><i class="fa-solid fa-check"></i> Create Entry</button>`);
+        </form>`, `<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" disabled style="opacity:0.5;pointer-events:none" onclick="createJE()"><i class="fa-solid fa-check"></i> Create Journal Entry</button>`);
     window._jeLineCount = lineCount;
+    setTimeout(() => attachJEValidation(), 100);
 }
 
 function addJELine() {
@@ -384,8 +392,8 @@ async function createJE() {
     }
     try {
         await api('/accounting/journal-entries', { method: 'POST', body: JSON.stringify({ date: document.getElementById('je-date').value, description: document.getElementById('je-desc').value, lines }) });
-        closeModal(); showAlert('Journal entry created', 'success'); renderJournalEntries();
-    } catch (err) { showAlert(err.message, 'error'); }
+        closeModal(); showAlert('Journal entry created successfully!', 'success'); clearCache(); renderJournalEntries();
+    } catch (err) { showAlert('Failed to create entry: ' + err.message, 'error'); }
 }
 
 // === 11. General Ledger ===
@@ -1066,6 +1074,23 @@ async function loadDemoData() {
     }
 }
 
+async function resetDemoData() {
+    if (!confirm("Are you sure you want to reset the demo data? This will clear all current records and restore the clean initial dataset.")) return;
+    const btn = document.getElementById('btn-demo-reset');
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Resetting...'; }
+    try {
+        await api('/dashboard/reset-demo', { method: 'POST' });
+        localStorage.removeItem('fincore_demo_loaded');
+        clearCache();
+        showAlert("Demo data has been successfully reset to its clean initial state.", "success");
+        renderDashboard();
+    } catch (err) {
+        showAlert('Error resetting data: ' + err.message, 'error');
+    } finally {
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-arrow-rotate-left"></i> Reset Demo'; }
+    }
+}
+
 // === 34. ABOUT PAGE ===
 function renderAbout() {
     document.getElementById('main-content').innerHTML = `<div class="fade-up">
@@ -1205,4 +1230,149 @@ function exportLedgerCSV() {
         }
     });
     if (data.length) exportToCSV(data, ['Date','Entry','Description','Debit','Credit','Balance'], 'ledger_' + new Date().toISOString().split('T')[0]);
+}
+
+// === 38. GUIDED WALKTHROUGH / TOUR ===
+const tourSteps = [
+    { selector: '.sidebar-brand', title: 'Welcome to FinCore', text: 'Your complete Finance-Centric ERP System. Let\'s take a quick tour of the key areas.', position: 'right' },
+    { selector: '.nav-item[data-page="dashboard"]', title: 'Dashboard', text: 'Your command center — real-time financial metrics, system health, and quick actions at a glance.', position: 'right' },
+    { selector: '.nav-item[data-page="journal-entries"]', title: 'Journal Entries', text: 'Create and manage double-entry bookkeeping records. Every entry must have balanced debits and credits.', position: 'right' },
+    { selector: '.nav-item[data-page="trial-balance"]', title: 'Trial Balance', text: 'Verify that all debits equal all credits. Export to CSV with one click.', position: 'right' },
+    { selector: '.nav-item[data-page="income-statement"]', title: 'Financial Reports', text: 'Income Statement, Balance Sheet, and Cash Flow reports — exportable as PDF.', position: 'right' },
+    { selector: '#global-search', title: 'Smart Search', text: 'Instantly search across accounts, employees, and inventory items. Press Ctrl+K anytime.', position: 'bottom' },
+    { selector: '.assistant-fab', title: 'AI Assistant', text: 'Get smart financial insights, summaries, and chat-based help powered by AI.', position: 'left' },
+];
+let tourActive = false, tourIndex = 0;
+
+function startTour() {
+    tourActive = true; tourIndex = 0;
+    closeSidebar();
+    // Ensure we're on dashboard
+    navigateTo('dashboard');
+    // Open sidebar on mobile for first steps
+    if (window.innerWidth <= 768) {
+        document.getElementById('sidebar').classList.add('open');
+        document.getElementById('sidebar-overlay').classList.add('active');
+    }
+    setTimeout(() => showTourStep(), 400);
+}
+
+function showTourStep() {
+    // Clean up previous
+    document.querySelectorAll('.tour-overlay,.tour-tooltip,.tour-highlight').forEach(e => e.remove());
+    if (tourIndex >= tourSteps.length) { endTour(); return; }
+
+    const step = tourSteps[tourIndex];
+    const el = document.querySelector(step.selector);
+    if (!el) { tourIndex++; showTourStep(); return; }
+
+    // Overlay
+    const overlay = document.createElement('div');
+    overlay.className = 'tour-overlay';
+    overlay.addEventListener('click', endTour);
+    document.body.appendChild(overlay);
+
+    // Highlight
+    const rect = el.getBoundingClientRect();
+    const highlight = document.createElement('div');
+    highlight.className = 'tour-highlight';
+    highlight.style.cssText = `top:${rect.top - 4}px;left:${rect.left - 4}px;width:${rect.width + 8}px;height:${rect.height + 8}px;`;
+    document.body.appendChild(highlight);
+
+    // Scroll element into view
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+    // Tooltip
+    const tooltip = document.createElement('div');
+    tooltip.className = `tour-tooltip tour-${step.position || 'bottom'}`;
+    tooltip.innerHTML = `
+        <div class="tour-step-badge">Step ${tourIndex + 1} of ${tourSteps.length}</div>
+        <h4>${step.title}</h4>
+        <p>${step.text}</p>
+        <div class="tour-actions">
+            <button class="btn btn-ghost btn-sm" onclick="endTour()">Skip Tour</button>
+            <div style="display:flex;gap:6px">
+                ${tourIndex > 0 ? '<button class="btn btn-outline btn-sm" onclick="prevTourStep()"><i class="fa-solid fa-arrow-left" style="font-size:10px"></i> Back</button>' : ''}
+                <button class="btn btn-primary btn-sm" onclick="nextTourStep()">${tourIndex === tourSteps.length - 1 ? 'Finish' : 'Next'} ${tourIndex < tourSteps.length - 1 ? '<i class="fa-solid fa-arrow-right" style="font-size:10px"></i>' : '<i class="fa-solid fa-check" style="font-size:10px"></i>'}</button>
+            </div>
+        </div>`;
+
+    // Position tooltip
+    document.body.appendChild(tooltip);
+    const tRect = tooltip.getBoundingClientRect();
+    let top, left;
+    switch(step.position) {
+        case 'right': top = rect.top + rect.height/2 - tRect.height/2; left = rect.right + 16; break;
+        case 'left': top = rect.top + rect.height/2 - tRect.height/2; left = rect.left - tRect.width - 16; break;
+        case 'bottom': top = rect.bottom + 12; left = rect.left + rect.width/2 - tRect.width/2; break;
+        default: top = rect.bottom + 12; left = rect.left;
+    }
+    top = Math.max(12, Math.min(top, window.innerHeight - tRect.height - 12));
+    left = Math.max(12, Math.min(left, window.innerWidth - tRect.width - 12));
+    tooltip.style.top = top + 'px';
+    tooltip.style.left = left + 'px';
+}
+
+function nextTourStep() { tourIndex++; showTourStep(); }
+function prevTourStep() { tourIndex = Math.max(0, tourIndex - 1); showTourStep(); }
+function endTour() {
+    tourActive = false;
+    document.querySelectorAll('.tour-overlay,.tour-tooltip,.tour-highlight').forEach(e => e.remove());
+    localStorage.setItem('fincore_tour_done', 'true');
+    showAlert('Tour complete! Explore FinCore at your own pace.', 'success');
+}
+
+// === 39. API CACHE (LIGHTWEIGHT PERFORMANCE) ===
+const apiCache = {};
+const CACHE_TTL = 60000; // 1 minute
+
+async function cachedApi(endpoint) {
+    const now = Date.now();
+    if (apiCache[endpoint] && (now - apiCache[endpoint].ts) < CACHE_TTL) {
+        return apiCache[endpoint].data;
+    }
+    const data = await api(endpoint);
+    apiCache[endpoint] = { data, ts: now };
+    return data;
+}
+
+function clearCache(pattern) {
+    if (pattern) { Object.keys(apiCache).filter(k => k.includes(pattern)).forEach(k => delete apiCache[k]); }
+    else { Object.keys(apiCache).forEach(k => delete apiCache[k]); }
+}
+
+// === 40. JE REAL-TIME VALIDATION ===
+function attachJEValidation() {
+    const container = document.getElementById('je-lines');
+    if (!container) return;
+
+    const statusEl = document.createElement('div');
+    statusEl.id = 'je-balance-status';
+    statusEl.className = 'je-balance-status';
+    container.parentElement.insertBefore(statusEl, container.nextSibling);
+
+    const validate = () => {
+        let totalDr = 0, totalCr = 0;
+        for (let i = 0; i < (window._jeLineCount || 2); i++) {
+            const dr = document.getElementById(`je-dr-${i}`);
+            const cr = document.getElementById(`je-cr-${i}`);
+            if (dr) totalDr += parseFloat(dr.value) || 0;
+            if (cr) totalCr += parseFloat(cr.value) || 0;
+        }
+        const balanced = Math.abs(totalDr - totalCr) < 0.01 && totalDr > 0;
+        const submitBtn = document.querySelector('.modal-footer .btn-primary');
+        statusEl.innerHTML = balanced
+            ? `<i class="fa-solid fa-circle-check" style="color:var(--success)"></i> <span style="color:var(--success);font-weight:600">Balanced</span> — Debit: ${fmtCur(totalDr)} = Credit: ${fmtCur(totalCr)}`
+            : `<i class="fa-solid fa-triangle-exclamation" style="color:var(--warning)"></i> <span style="color:var(--warning);font-weight:600">${totalDr === 0 && totalCr === 0 ? 'Enter amounts' : 'Unbalanced'}</span> — Debit: ${fmtCur(totalDr)} ≠ Credit: ${fmtCur(totalCr)}`;
+        statusEl.className = `je-balance-status ${balanced ? 'balanced' : 'unbalanced'}`;
+        if (submitBtn) {
+            submitBtn.disabled = !balanced;
+            submitBtn.style.opacity = balanced ? '1' : '0.5';
+            submitBtn.style.pointerEvents = balanced ? 'auto' : 'none';
+        }
+    };
+
+    container.addEventListener('input', validate);
+    // Run initial validation
+    setTimeout(validate, 100);
 }

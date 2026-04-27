@@ -132,7 +132,10 @@ def create_default_users():
 
 
 @app.on_event("startup")
-def seed_demo_data():
+def startup_seed():
+    seed_demo_data(force=False)
+
+def seed_demo_data(force=False):
     """
     Seed demo data for a Food & Beverage manufacturing company.
     
@@ -143,11 +146,13 @@ def seed_demo_data():
     """
     db = SessionLocal()
     try:
-        # Check if F&B data already exists (look for F&B specific department)
-        existing_dept = db.query(Department).filter(Department.name == "Production").first()
-        if existing_dept and existing_dept.description == "Bakery and beverage production lines":
-            print("F&B demo data already exists — skipping seed.")
-            return
+        if not force:
+            # Check if F&B data already exists (look for F&B specific department)
+            existing_dept = db.query(Department).filter(Department.name == "Production").first()
+            if existing_dept and existing_dept.description == "Bakery and beverage production lines":
+                print("F&B demo data already exists — skipping seed.")
+                return
+
         
         # Clear old generic data if it exists
         existing_data = db.query(Department).first()
